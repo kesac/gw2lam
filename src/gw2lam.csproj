@@ -32,6 +32,30 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BitFactory">
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\BitFactory.dll</HintPath>
+    </Reference>
+    <Reference Include="GwApiNET">
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\GwApiNET.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio">
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\NAudio.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.WindowsMediaFormat">
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\NAudio.WindowsMediaFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SLF">
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\SLF.dll</HintPath>
+    </Reference>
+    <Reference Include="SLF.BitFactoryFacade">
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\SLF.BitFactoryFacade.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
