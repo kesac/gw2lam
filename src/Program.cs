@@ -4,6 +4,7 @@ using System.Threading;
 using System.Collections.Generic;
 using GwApiNET.Gw2PositionReader;
 using GwApiNET.ResponseObjects;
+using GwApiNET.Logging;
 
 using NAudio;
 using NAudio.Wave;
@@ -14,87 +15,106 @@ using System.Text;
 namespace gw2lam
 {
 
-    public class Item
+    public class MapData
     {
         public string map_name { get; set; }
     }
 
-    public class MapNamesResponse
+    public class APIResponse
     {
-        public Dictionary<int, Item> maps { get; set; }
+        public Dictionary<int, MapData> maps { get; set; }
     }
 
     class Program
     {
 
-        private static IWavePlayer waveOutDevice;
-        private static AudioFileReader audioFileReader;
-        private static string currentlyPlaying = "";
+        private const string MAP_DATA_FILE = "maps.json";
+        private const string MAP_DATA_API = "http://api.guildwars2.com/v1/maps.json";
 
         static void Main(string[] args)
         {
+            //OldProgram.Start();
 
-            string rawMapData;
-            using (StreamReader streamReader = new StreamReader("maps.json", Encoding.UTF8))
+            
+            // Create our look-up table to convert map IDs to names
+            string rawData;
+            if (!File.Exists(MAP_DATA_FILE)) // Download maps.json if it doesn't exist
             {
-                rawMapData = streamReader.ReadToEnd();
+                WebClient client = new WebClient();
+                rawData = client.DownloadString(MAP_DATA_API);
+                File.WriteAllText(MAP_DATA_FILE, rawData);
+            }
+            else
+            {
+                using (StreamReader streamReader = new StreamReader(MAP_DATA_FILE, Encoding.UTF8))
+                {
+                    rawData = streamReader.ReadToEnd();
+                }
             }
 
-            MapNamesResponse response = Newtonsoft.Json.JsonConvert.DeserializeObject<MapNamesResponse>(rawMapData);
-            Dictionary<int, Item> maps = response.maps;
+            APIResponse response = JsonConvert.DeserializeObject<APIResponse>(rawData);
+            Dictionary<int, MapData> maps = response.maps;
 
-            // Setup
+            // Create a music folder if it doesn't exist
             if (!Directory.Exists("music"))
             {
                 Directory.CreateDirectory("music");
             }
 
-            uint currentMapID = 0;
+            // Turn off all logging of the GwApiNET library
+            foreach (string loggerName in GwApiNET.Constants.LoggerNames)
+            {
+                try
+                {
+                    foreach (GwLogManager.LogLevel logLevel in Enum.GetValues(typeof(GwLogManager.LogLevel)))
+                    {
+                        GwLogManager.SetLogLevel(loggerName, false, logLevel);
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                
+            }
 
-            Player p = Gw2PositionReaderApi.GetPlayerDataInstance();
+            // Begin the main application loop
+            MusicPlayer music = new MusicPlayer();
+            Player playerData = Gw2PositionReaderApi.GetPlayerDataInstance();
+            uint tick = 0;
+            uint mapID = 0;
+
             do
             {
-                while (!Console.KeyAvailable)
-                {
-                    Console.Clear();
+                while (!Console.KeyAvailable){
 
+                    Console.Clear();
+                    Console.WriteLine("================================");
                     Console.WriteLine("Guild Wars 2 Custom Music Player");
                     Console.WriteLine("================================");
-                    Console.WriteLine("Player: " + p.CharacterName);
+                    Console.WriteLine("Player: " + playerData.CharacterName);
+                    Console.WriteLine("Version: " + playerData.Version);
+                    Console.WriteLine("Y: " + playerData.AvatarPosition.Y);
+                    Console.WriteLine("X: " + playerData.AvatarPosition.X);
+                    Console.WriteLine("Z: " + playerData.AvatarPosition.Z);
+                    Console.WriteLine("");
+                    Console.WriteLine("Tick: " + playerData.Tick);
+                    Console.WriteLine("Currently Playing: " + music.TargetAudioFile);
+                    Console.WriteLine("Volume: " + (music.Volume*100));
 
-                    //if(maps.Keys.Contains((int)p.MapId))
-                    if (maps.ContainsKey((int)p.MapId))
+                    
+                    if (mapID != playerData.MapId)
                     {
-                        Console.WriteLine("Map: " + maps[(int)p.MapId].map_name);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Map: " + p.MapId);
-                    }
+                        // The map has changed, abruptly stop the music and start a new track
+                        music.StopAudio();
+                        mapID = playerData.MapId;
 
-                    if (waveOutDevice != null && audioFileReader != null && audioFileReader.HasData(1))
-                    {
-                        Console.WriteLine("Currently Playing: " + currentlyPlaying);
-                    }
-                    else
-                    {
-                        Console.WriteLine("No custom music available for map");
-                    }
-
-
-                    if (currentMapID != p.MapId)
-                    {
-                        // stop audio
-                        Program.StopAudio();
-
-                        currentMapID = p.MapId;
-
-                        string path = "music\\map" + currentMapID;
-
-                        //if (maps.Keys.Contains((int)currentMapID))
-                        if (maps.ContainsKey((int)currentMapID))
+                        // If this map's name is not in our lookup table, we use the convention mapXXX
+                        // where XXX is the ID
+                        string path = "music\\map" + mapID;
+                        if (maps.ContainsKey((int)mapID))
                         {
-                            path = "music\\" + maps[(int)currentMapID].map_name;
+                            path = "music\\" + maps[(int)mapID].map_name;
                         }
 
                         if (Directory.Exists(path))
@@ -115,52 +135,36 @@ namespace gw2lam
                             {
                                 Random random = new Random();
                                 string bgm = mp3s[random.Next(mp3s.Count)];
-
-                                PlayAudio(bgm);
-                                Console.WriteLine(bgm);
+                                music.PlayAudio(bgm);
                             }
                         }
 
+                        tick--; // This is to prevent a fadeout during the next iteration because the tick hasn't change yet even though the map just has
+
                     }
-                    // Loops the audio
-                    else if (audioFileReader != null && !audioFileReader.HasData(1))
+                    else if (tick == playerData.Tick && music.IsPlaying)
                     {
-                        StopAudio();
-                        currentMapID = 0;
+                        // The ticks have stopped updating. We are likely in a map transition.
+                        // Fade out instead of abruptly stopping the music.
+                        music.FadeStop();
                     }
+                    else if (tick != playerData.Tick && mapID == playerData.MapId && !music.IsPlaying) // The music has finished and a new track must be selected.
+                    {
+                        // This will force the next iteration of this loop to select a new track.
+                        // If there is only one track associated with the map, this will effectively
+                        // loop the track.
+                        mapID = 0;
+                    }
+
+
+                    music.Update();
+                    tick = playerData.Tick;
 
                     Thread.Sleep(100);
                 }
+
             } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
-        }
 
-        private static void PlayAudio(String path)
-        {
-            currentlyPlaying = path;
-            Program.waveOutDevice = new WaveOut();
-            Program.audioFileReader = new AudioFileReader(path);
-            Program.waveOutDevice.Init(audioFileReader);
-            Program.waveOutDevice.Play();
-        }
-
-        private static void StopAudio()
-        {
-            currentlyPlaying = "";
-
-            if (waveOutDevice != null)
-            {
-                waveOutDevice.Stop();
-            }
-            if (audioFileReader != null)
-            {
-                audioFileReader.Dispose();
-                audioFileReader = null;
-            }
-            if (waveOutDevice != null)
-            {
-                waveOutDevice.Dispose();
-                waveOutDevice = null;
-            }
         }
 
     }
