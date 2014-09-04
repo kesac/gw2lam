@@ -31,6 +31,7 @@ namespace gw2lam
         private const string MAP_DATA_FILE = "maps.json";
         private const string MAP_DATA_API = "http://api.guildwars2.com/v1/maps.json";
 
+
         static void Main(string[] args)
         {
             //OldProgram.Start();
@@ -61,6 +62,36 @@ namespace gw2lam
                 Directory.CreateDirectory("music");
             }
 
+            // MainMenu is a special folder. gw2lam cannot detect if a player is at the main 
+            // login screen through the mumble API and so must rely on GW2's native
+            // custom music feature that is handled via playlist files.
+            // The only problem is now we have to silence all other music
+            /*
+            if (Directory.Exists("music\\Login Screen"))
+            {
+                List<string> mp3s = GetMP3s("music\\Login Screen");
+
+                if (Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Documents\\Guild Wars 2\\Music\\"))
+                {
+                    using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Documents\\Guild Wars 2\\Music\\MainMenu.m3u"))
+                    {
+                        file.WriteLine("#EXTM3U");
+                        foreach (string line in mp3s)
+                        {
+                            file.WriteLine("#EXTINF:-1, " + line);
+                            file.WriteLine(line);
+                        }
+                    }
+
+                    using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Documents\\Guild Wars 2\\Music\\Ambient.m3u"))
+                    {
+                        file.WriteLine("#EXTM3U");
+                    }
+                }
+
+            }
+            //*/
+
             // Turn off all logging of the GwApiNET library
             foreach (string loggerName in GwApiNET.Constants.LoggerNames)
             {
@@ -87,22 +118,9 @@ namespace gw2lam
             do
             {
                 while (!Console.KeyAvailable){
-
-                    Console.Clear();
-                    Console.WriteLine("================================");
-                    Console.WriteLine("Guild Wars 2 Custom Music Player");
-                    Console.WriteLine("================================");
-                    Console.WriteLine("Player: " + playerData.CharacterName);
-                    Console.WriteLine("Version: " + playerData.Version);
-                    Console.WriteLine("Y: " + playerData.AvatarPosition.Y);
-                    Console.WriteLine("X: " + playerData.AvatarPosition.X);
-                    Console.WriteLine("Z: " + playerData.AvatarPosition.Z);
-                    Console.WriteLine("");
-                    Console.WriteLine("Tick: " + playerData.Tick);
-                    Console.WriteLine("Currently Playing: " + music.TargetAudioFile);
-                    Console.WriteLine("Volume: " + (music.Volume*100));
-
                     
+                    UpdateConsole(music, playerData);
+
                     if (mapID != playerData.MapId)
                     {
                         // The map has changed, abruptly stop the music and start a new track
@@ -119,17 +137,7 @@ namespace gw2lam
 
                         if (Directory.Exists(path))
                         {
-                            string[] files = Directory.GetFiles(path);
-
-                            List<string> mp3s = new List<string>();
-
-                            foreach (string f in files)
-                            {
-                                if (f.EndsWith(".mp3"))
-                                {
-                                    mp3s.Add(f);
-                                }
-                            }
+                            List<string> mp3s = GetMP3s(path);
 
                             if (mp3s.Count > 0)
                             {
@@ -165,6 +173,43 @@ namespace gw2lam
 
             } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
 
+        }
+
+        private static void UpdateConsole(MusicPlayer music, Player playerData)
+        {
+            Console.Clear();
+            Console.WriteLine("================================");
+            Console.WriteLine("Guild Wars 2 Custom Music Player");
+            Console.WriteLine("================================");
+            
+            Console.WriteLine("Player: " + playerData.CharacterName);
+            Console.WriteLine("Version: " + playerData.Version);
+            Console.WriteLine("Y: " + playerData.AvatarPosition.Y);
+            Console.WriteLine("X: " + playerData.AvatarPosition.X);
+            Console.WriteLine("Z: " + playerData.AvatarPosition.Z);
+            Console.WriteLine("");
+            Console.WriteLine("Tick: " + playerData.Tick);
+            Console.WriteLine("Currently Playing: " + music.TargetAudioFile);
+            Console.WriteLine("Volume: " + (music.Volume * 100));
+        }
+
+
+        private static List<string> GetMP3s(string directory)
+        {
+            string[] files = Directory.GetFiles(Path.GetFullPath(directory));
+            
+
+            List<string> mp3s = new List<string>();
+
+            foreach (string f in files)
+            {
+                if (f.EndsWith(".mp3"))
+                {
+                    mp3s.Add(f);
+                }
+            }
+
+            return mp3s;
         }
 
     }
