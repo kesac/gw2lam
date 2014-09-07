@@ -47,6 +47,14 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="NVorbis, Version=0.8.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\NVorbis.dll</HintPath>
+    </Reference>
+    <Reference Include="NVorbis.NAudioSupport, Version=0.5.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\NVorbis.NAudioSupport.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp">
       <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\RestSharp.dll</HintPath>
     </Reference>

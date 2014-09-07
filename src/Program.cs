@@ -31,12 +31,11 @@ namespace gw2lam
         private const string MAP_DATA_FILE = "maps.json";
         private const string MAP_DATA_API = "http://api.guildwars2.com/v1/maps.json";
 
+        private static readonly string[] SUPPORTED_FORMATS = new string[]{ ".mp3", ".wav", ".ogg" };
+
 
         static void Main(string[] args)
         {
-            //OldProgram.Start();
-
-            
             // Create our look-up table to convert map IDs to names
             string rawData;
             if (!File.Exists(MAP_DATA_FILE)) // Download maps.json if it doesn't exist
@@ -62,36 +61,6 @@ namespace gw2lam
                 Directory.CreateDirectory("music");
             }
 
-            // MainMenu is a special folder. gw2lam cannot detect if a player is at the main 
-            // login screen through the mumble API and so must rely on GW2's native
-            // custom music feature that is handled via playlist files.
-            // The only problem is now we have to silence all other music
-            /*
-            if (Directory.Exists("music\\Login Screen"))
-            {
-                List<string> mp3s = GetMP3s("music\\Login Screen");
-
-                if (Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Documents\\Guild Wars 2\\Music\\"))
-                {
-                    using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Documents\\Guild Wars 2\\Music\\MainMenu.m3u"))
-                    {
-                        file.WriteLine("#EXTM3U");
-                        foreach (string line in mp3s)
-                        {
-                            file.WriteLine("#EXTINF:-1, " + line);
-                            file.WriteLine(line);
-                        }
-                    }
-
-                    using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Documents\\Guild Wars 2\\Music\\Ambient.m3u"))
-                    {
-                        file.WriteLine("#EXTM3U");
-                    }
-                }
-
-            }
-            //*/
-
             // Turn off all logging of the GwApiNET library
             foreach (string loggerName in GwApiNET.Constants.LoggerNames)
             {
@@ -112,14 +81,15 @@ namespace gw2lam
             // Begin the main application loop
             MusicPlayer music = new MusicPlayer();
             Player playerData = Gw2PositionReaderApi.GetPlayerDataInstance();
+            string currentMap = "";
             uint tick = 0;
             uint mapID = 0;
 
             do
             {
                 while (!Console.KeyAvailable){
-                    
-                    UpdateConsole(music, playerData);
+
+                    UpdateConsole(music, playerData, currentMap);
 
                     if (mapID != playerData.MapId)
                     {
@@ -130,21 +100,19 @@ namespace gw2lam
                         // If this map's name is not in our lookup table, we use the convention mapXXX
                         // where XXX is the ID
                         string path = "music\\map" + mapID;
+                        currentMap = "map" + mapID;
+
                         if (maps.ContainsKey((int)mapID))
                         {
                             path = "music\\" + maps[(int)mapID].map_name;
+                            currentMap = maps[(int)mapID].map_name;
                         }
+                        
 
                         if (Directory.Exists(path))
                         {
-                            List<string> mp3s = GetMP3s(path);
-
-                            if (mp3s.Count > 0)
-                            {
-                                Random random = new Random();
-                                string bgm = mp3s[random.Next(mp3s.Count)];
-                                music.PlayAudio(bgm);
-                            }
+                            music.Playlist = GetMusic(path);
+                            music.PlayAudio();
                         }
 
                         tick--; // This is to prevent a fadeout during the next iteration because the tick hasn't change yet even though the map just has
@@ -175,41 +143,59 @@ namespace gw2lam
 
         }
 
-        private static void UpdateConsole(MusicPlayer music, Player playerData)
+        private static void UpdateConsole(MusicPlayer music, Player playerData, string mapName)
         {
             Console.Clear();
             Console.WriteLine("================================");
             Console.WriteLine("Guild Wars 2 Custom Music Player");
             Console.WriteLine("================================");
-            
+            Console.WriteLine("Tick: " + playerData.Tick);
             Console.WriteLine("Player: " + playerData.CharacterName);
-            Console.WriteLine("Version: " + playerData.Version);
             Console.WriteLine("Y: " + playerData.AvatarPosition.Y);
             Console.WriteLine("X: " + playerData.AvatarPosition.X);
             Console.WriteLine("Z: " + playerData.AvatarPosition.Z);
-            Console.WriteLine("");
-            Console.WriteLine("Tick: " + playerData.Tick);
-            Console.WriteLine("Currently Playing: " + music.TargetAudioFile);
+            
+            Console.WriteLine();
+            Console.WriteLine("Current Location: " + mapName + "(" +  "?,?" + ",?" + ")");
+
+            string[] tokens = music.TargetAudioFile.Split('\\');
+            Console.WriteLine("Currently Playing: " + tokens[tokens.Length-1]);
             Console.WriteLine("Volume: " + (music.Volume * 100));
+            Console.WriteLine("Position: " + (music.CurrentPosition));
+            Console.WriteLine("Length: " + (music.CurrentLength));
+            Console.WriteLine();
+
+            if(music.Playlist != null)
+            {
+                foreach (string item in music.Playlist)
+                {
+                    tokens = item.Split('\\');
+                    Console.WriteLine("+ " + tokens[tokens.Length-1]);
+                }
+            }
         }
 
 
-        private static List<string> GetMP3s(string directory)
+        private static List<string> GetMusic(string directory)
         {
             string[] files = Directory.GetFiles(Path.GetFullPath(directory));
             
 
-            List<string> mp3s = new List<string>();
+            List<string> musicFiles = new List<string>();
 
             foreach (string f in files)
             {
-                if (f.EndsWith(".mp3"))
+                foreach (string format in SUPPORTED_FORMATS)
                 {
-                    mp3s.Add(f);
+                    if (f.EndsWith(format))
+                    {
+                        musicFiles.Add(f);
+                        break;
+                    }
                 }
             }
 
-            return mp3s;
+            return musicFiles;
         }
 
     }

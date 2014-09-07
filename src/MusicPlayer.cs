@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using NAudio;
 using NAudio.Wave;
+using NVorbis.NAudioSupport;
 using Newtonsoft.Json;
 
 namespace gw2lam
@@ -18,7 +19,48 @@ namespace gw2lam
 
         private IWavePlayer waveOutDevice;
         private AudioFileReader audioFileReader;
+        private VorbisFileReader vorbisFileReader;
         private TargetState targetState;
+
+        public List<String> Playlist { get; set; }
+
+        public long CurrentPosition
+        {
+            get
+            {
+                if (audioFileReader != null)
+                {
+                    return audioFileReader.Position;
+                }
+                else if (vorbisFileReader != null)
+                {
+                    return vorbisFileReader.Position;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+        }
+
+        public long CurrentLength
+        {
+            get
+            {
+                if (audioFileReader != null)
+                {
+                    return audioFileReader.Length;
+                }
+                else if (vorbisFileReader != null)
+                {
+                    return vorbisFileReader.Length;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+        }
 
         public string TargetAudioFile { get; private set; }
         public float Volume
@@ -28,6 +70,10 @@ namespace gw2lam
                 if (audioFileReader != null)
                 {
                     return audioFileReader.Volume;
+                }
+                else if (vorbisFileReader != null && waveOutDevice != null)
+                {
+                    return waveOutDevice.Volume;
                 }
                 else{
                     return 0;
@@ -39,7 +85,7 @@ namespace gw2lam
         {
             get
             {
-                return this.audioFileReader != null;
+                return this.audioFileReader != null || this.vorbisFileReader != null;
             }
         }
 
@@ -63,6 +109,20 @@ namespace gw2lam
                         this.StopAudio();
                     }
                 }
+                else if (vorbisFileReader != null)
+                {
+
+                    if (this.waveOutDevice.Volume - FADE_OUT_STEP < 0)
+                    {
+                        this.waveOutDevice.Volume = 0;
+                        this.StopAudio();
+                    }
+                    else
+                    {
+                        this.waveOutDevice.Volume -= FADE_OUT_STEP;
+                    }
+
+                }
                 else
                 {
                     this.StopAudio();
@@ -74,16 +134,36 @@ namespace gw2lam
            {
                StopAudio();
            }
+           else if (vorbisFileReader != null && vorbisFileReader.Position == vorbisFileReader.Length)
+           {
+               StopAudio();
+           }
+           
         }
 
-        public void PlayAudio(String path)
+        public void PlayAudio()
         {
-            this.TargetAudioFile = path;
+            Random random = new Random();
+            this.TargetAudioFile = this.Playlist[random.Next(this.Playlist.Count)];
+
             this.waveOutDevice = new WaveOut();
-            this.audioFileReader = new AudioFileReader(this.TargetAudioFile);
-            this.waveOutDevice.Init(audioFileReader);
+
+            if (this.TargetAudioFile.EndsWith(".mp3") || this.TargetAudioFile.EndsWith(".wav"))
+            {
+                this.audioFileReader = new AudioFileReader(this.TargetAudioFile);
+                this.waveOutDevice.Init(audioFileReader);
+            }
+            else if (this.TargetAudioFile.EndsWith(".ogg"))
+            {
+                this.vorbisFileReader = new VorbisFileReader(this.TargetAudioFile);
+                this.waveOutDevice.Init(vorbisFileReader);
+                
+            }
+
+            this.waveOutDevice.Volume = 1.0f; // Unfortunately, VorbisFileReader does not have volume control
             this.waveOutDevice.Play();
             this.targetState = TargetState.NOTHING;
+
         }
 
         // Only works if Update() is being called in the main loop
@@ -103,16 +183,25 @@ namespace gw2lam
             {
                 waveOutDevice.Stop();
             }
+            
             if (audioFileReader != null)
             {
                 audioFileReader.Dispose();
-                audioFileReader = null;
+                audioFileReader = null;    
             }
+            
+            if (vorbisFileReader != null)
+            {
+                vorbisFileReader.Dispose();
+                vorbisFileReader = null;
+            }
+
             if (waveOutDevice != null)
             {
                 waveOutDevice.Dispose();
                 waveOutDevice = null;
             }
+
             this.targetState = TargetState.NOTHING;
         }
 
