@@ -36,51 +36,12 @@ namespace gw2lam
 
         static void Main(string[] args)
         {
-            // Create our look-up table to convert map IDs to names
-            string rawData;
-            if (!File.Exists(MAP_DATA_FILE)) // Download maps.json if it doesn't exist
-            {
-                WebClient client = new WebClient();
-                rawData = client.DownloadString(MAP_DATA_API);
-                File.WriteAllText(MAP_DATA_FILE, rawData);
-            }
-            else
-            {
-                using (StreamReader streamReader = new StreamReader(MAP_DATA_FILE, Encoding.UTF8))
-                {
-                    rawData = streamReader.ReadToEnd();
-                }
-            }
+            Setup();
 
-            APIResponse response = JsonConvert.DeserializeObject<APIResponse>(rawData);
-            Dictionary<int, MapData> maps = response.maps;
-
-            // Create a music folder if it doesn't exist
-            if (!Directory.Exists("music"))
-            {
-                Directory.CreateDirectory("music");
-            }
-
-            // Turn off all logging of the GwApiNET library
-            foreach (string loggerName in GwApiNET.Constants.LoggerNames)
-            {
-                try
-                {
-                    foreach (GwLogManager.LogLevel logLevel in Enum.GetValues(typeof(GwLogManager.LogLevel)))
-                    {
-                        GwLogManager.SetLogLevel(loggerName, false, logLevel);
-                    }
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-                
-            }
-
-            // Begin the main application loop
-            MusicPlayer music = new MusicPlayer();
             Player playerData = Gw2PositionReaderApi.GetPlayerDataInstance();
+            Dictionary<int, MapData> maps = GetMapsData();
+            MusicPlayer music = new MusicPlayer();
+            
             string currentMap = "";
             uint tick = 0;
             uint mapID = 0;
@@ -112,7 +73,7 @@ namespace gw2lam
                         if (Directory.Exists(path))
                         {
                             music.Playlist = GetMusic(path);
-                            music.PlayAudio();
+                            music.PlayRandomTrack();
                         }
 
                         tick--; // This is to prevent a fadeout during the next iteration because the tick hasn't change yet even though the map just has
@@ -143,29 +104,79 @@ namespace gw2lam
 
         }
 
+        private static void Setup()
+        {
+            // Create a music folder if it doesn't exist
+            if (!Directory.Exists("music"))
+            {
+                Directory.CreateDirectory("music");
+            }
+
+            // Turn off all logging of the GwApiNET library
+            foreach (string loggerName in GwApiNET.Constants.LoggerNames)
+            {
+                try
+                {
+                    foreach (GwLogManager.LogLevel logLevel in Enum.GetValues(typeof(GwLogManager.LogLevel)))
+                    {
+                        GwLogManager.SetLogLevel(loggerName, false, logLevel);
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+
+            }
+        }
+
+        private static Dictionary<int, MapData> GetMapsData()
+        {
+            // Create our look-up table to convert map IDs to names
+            string rawData;
+            if (!File.Exists(MAP_DATA_FILE)) // Download maps.json if it doesn't exist
+            {
+                WebClient client = new WebClient();
+                rawData = client.DownloadString(MAP_DATA_API);
+                File.WriteAllText(MAP_DATA_FILE, rawData);
+            }
+            else
+            {
+                using (StreamReader streamReader = new StreamReader(MAP_DATA_FILE, Encoding.UTF8))
+                {
+                    rawData = streamReader.ReadToEnd();
+                }
+            }
+
+            APIResponse response = JsonConvert.DeserializeObject<APIResponse>(rawData);
+            return response.maps;
+        }
+
+
         private static void UpdateConsole(MusicPlayer music, Player playerData, string mapName)
         {
             Console.Clear();
             Console.WriteLine("================================");
             Console.WriteLine("Guild Wars 2 Custom Music Player");
             Console.WriteLine("================================");
-            Console.WriteLine("Tick: " + playerData.Tick);
             Console.WriteLine("Player: " + playerData.CharacterName);
-            Console.WriteLine("Y: " + playerData.AvatarPosition.Y);
-            Console.WriteLine("X: " + playerData.AvatarPosition.X);
-            Console.WriteLine("Z: " + playerData.AvatarPosition.Z);
             
+            double x = Math.Floor(playerData.AvatarPosition.X);
+            double y = Math.Floor(playerData.AvatarPosition.Y);
+            double z = Math.Floor(playerData.AvatarPosition.Z);
+
+            Console.WriteLine("Current Location: " + mapName + " (" + x + ", " + y + ", " + z + ")");
+            Console.WriteLine("Tick: " + playerData.Tick);
             Console.WriteLine();
-            Console.WriteLine("Current Location: " + mapName + "(" +  "?,?" + ",?" + ")");
 
             string[] tokens = music.TargetAudioFile.Split('\\');
             Console.WriteLine("Currently Playing: " + tokens[tokens.Length-1]);
-            Console.WriteLine("Volume: " + (music.Volume * 100));
-            Console.WriteLine("Position: " + (music.CurrentPosition));
-            Console.WriteLine("Length: " + (music.CurrentLength));
+            Console.WriteLine("Volume: " + Math.Floor(music.Volume * 100) + "%");
+            Console.WriteLine("Duration: " + music.CurrentPosition + " / " + music.CurrentLength);
             Console.WriteLine();
+            Console.WriteLine("Map Playlist:");
 
-            if(music.Playlist != null)
+            if(music.Playlist != null && music.IsPlaying)
             {
                 foreach (string item in music.Playlist)
                 {

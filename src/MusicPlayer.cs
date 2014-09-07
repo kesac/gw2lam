@@ -24,40 +24,40 @@ namespace gw2lam
 
         public List<String> Playlist { get; set; }
 
-        public long CurrentPosition
+        public string CurrentPosition
         {
             get
             {
                 if (audioFileReader != null)
                 {
-                    return audioFileReader.Position;
+                    return audioFileReader.CurrentTime.ToString("m\\:ss");
                 }
                 else if (vorbisFileReader != null)
                 {
-                    return vorbisFileReader.Position;
+                    return vorbisFileReader.CurrentTime.ToString("m\\:ss");
                 }
                 else
                 {
-                    return -1;
+                    return "0:00";
                 }
             }
         }
 
-        public long CurrentLength
+        public string CurrentLength
         {
             get
             {
                 if (audioFileReader != null)
                 {
-                    return audioFileReader.Length;
+                    return audioFileReader.TotalTime.ToString("m\\:ss");
                 }
                 else if (vorbisFileReader != null)
                 {
-                    return vorbisFileReader.Length;
+                    return vorbisFileReader.TotalTime.ToString("m\\:ss");
                 }
                 else
                 {
-                    return -1;
+                    return "0:00";
                 }
             }
         }
@@ -141,7 +141,7 @@ namespace gw2lam
            
         }
 
-        public void PlayAudio()
+        public void PlayRandomTrack()
         {
             Random random = new Random();
             this.TargetAudioFile = this.Playlist[random.Next(this.Playlist.Count)];
