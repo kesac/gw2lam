@@ -27,7 +27,7 @@ Inside the main folder is a directory called **music**. When customizing the mus
 
 For example, if you want to customize the music of [Divinity's Reach](http://wiki.guildwars2.com/wiki/Divinity%27s_reach), the human capital of [Tyria](http://wiki.guildwars2.com/wiki/Tyria), you would place your custom music in **music/Divinity's Reach**. For convenience, the gw2lam distributable has most of the subdirectories for major maps already created.
 
-Music can be customized while both GW2 and gw2lam are already running. However, you will need to exit and re-enter a map to hear the changes. At the moment, only the .mp3 format is supported.
+Music can be customized while both GW2 and gw2lam are already running. However, you will need to exit and re-enter a map to hear the changes. At the moment, only the .mp3, .ogg, and .wav formats are supported.
 
 
 ## Compiling

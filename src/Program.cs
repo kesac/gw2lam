@@ -97,7 +97,7 @@ namespace gw2lam
                     music.Update();
                     tick = playerData.Tick;
 
-                    Thread.Sleep(100);
+                    Thread.Sleep(200);
                 }
 
             } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
@@ -156,23 +156,23 @@ namespace gw2lam
         private static void UpdateConsole(MusicPlayer music, Player playerData, string mapName)
         {
             Console.Clear();
-            Console.WriteLine("================================");
-            Console.WriteLine("Guild Wars 2 Custom Music Player");
-            Console.WriteLine("================================");
-            Console.WriteLine("Player: " + playerData.CharacterName);
-            
+            Console.WriteLine("=================================");
+            Console.WriteLine("Guild Wars 2 Location-Aware Music");
+            Console.WriteLine("=================================");
+
             double x = Math.Floor(playerData.AvatarPosition.X);
             double y = Math.Floor(playerData.AvatarPosition.Y);
             double z = Math.Floor(playerData.AvatarPosition.Z);
-
-            Console.WriteLine("Current Location: " + mapName + " (" + x + ", " + y + ", " + z + ")");
-            Console.WriteLine("Tick: " + playerData.Tick);
+            
+            Console.WriteLine("  Player: " + playerData.CharacterName);
+            Console.WriteLine("Location: " + mapName + " (" + x + ", " + y + ", " + z + ")");
+            Console.WriteLine("    Tick: " + playerData.Tick);
             Console.WriteLine();
 
             string[] tokens = music.TargetAudioFile.Split('\\');
-            Console.WriteLine("Currently Playing: " + tokens[tokens.Length-1]);
-            Console.WriteLine("Volume: " + Math.Floor(music.Volume * 100) + "%");
+            Console.WriteLine("   Track: " + tokens[tokens.Length-1]);
             Console.WriteLine("Duration: " + music.CurrentPosition + " / " + music.CurrentLength);
+            Console.WriteLine("  Volume: " + Math.Floor(music.Volume * 100) + "%");
             Console.WriteLine();
             Console.WriteLine("Map Playlist:");
 
