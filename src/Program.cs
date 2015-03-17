@@ -36,6 +36,7 @@ namespace gw2lam
 
         static void Main(string[] args)
         {
+
             Setup();
 
             Player playerData = Gw2PositionReaderApi.GetPlayerDataInstance();
@@ -45,7 +46,7 @@ namespace gw2lam
             string currentMap = "";
             uint tick = 0;
             uint mapID = 0;
-
+            
             do
             {
                 while (!Console.KeyAvailable){
@@ -101,7 +102,7 @@ namespace gw2lam
                 }
 
             } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
-
+            /**/
         }
 
         private static void Setup()

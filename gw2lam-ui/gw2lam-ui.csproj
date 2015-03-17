@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4F13A561-8B3E-4456-8D42-A094076E2373}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{6C6D2A05-1529-4599-8723-3E591C1A1667}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>gw2lam</RootNamespace>
-    <AssemblyName>gw2lam</AssemblyName>
+    <RootNamespace>gw2lam_ui</RootNamespace>
+    <AssemblyName>gw2lam-ui</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,55 +32,56 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BitFactory">
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\BitFactory.dll</HintPath>
-    </Reference>
-    <Reference Include="GwApiNET">
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\GwApiNET.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio">
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio.WindowsMediaFormat">
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\NAudio.WindowsMediaFormat.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NVorbis, Version=0.8.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\NVorbis.dll</HintPath>
-    </Reference>
-    <Reference Include="NVorbis.NAudioSupport, Version=0.5.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\NVorbis.NAudioSupport.dll</HintPath>
-    </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\RestSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="SLF">
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\SLF.dll</HintPath>
-    </Reference>
-    <Reference Include="SLF.BitFactoryFacade">
-      <HintPath>..\..\..\..\..\..\Users\striker-user\Desktop\GW2 Custom Music\SLF.BitFactoryFacade.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PlayerTracker.cs" />
-    <Compile Include="MusicPlayer.cs" />
-    <Compile Include="OldProgram.cs" />
+    <Compile Include="ApplicationWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ApplicationWindow.Designer.cs">
+      <DependentUpon>ApplicationWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="ApplicationWindow.resx">
+      <DependentUpon>ApplicationWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\gw2lam.csproj">
+      <Project>{4f13a561-8b3e-4456-8d42-a094076e2373}</Project>
+      <Name>gw2lam</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

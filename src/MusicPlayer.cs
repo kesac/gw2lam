@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace gw2lam
 {
-    class MusicPlayer
+    public class MusicPlayer
     {
 
         private const float FADE_OUT_STEP = 0.03f;
