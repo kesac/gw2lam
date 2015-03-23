@@ -77,8 +77,7 @@
     <Compile Include="MusicManager.cs" />
     <Compile Include="PlayerTracker.cs" />
     <Compile Include="MusicPlayer.cs" />
-    <Compile Include="OldProgram.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="OfflineStart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

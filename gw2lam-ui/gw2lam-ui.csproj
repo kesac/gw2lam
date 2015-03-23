@@ -7,8 +7,8 @@
     <ProjectGuid>{6C6D2A05-1529-4599-8723-3E591C1A1667}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>gw2lam_ui</RootNamespace>
-    <AssemblyName>gw2lam-ui</AssemblyName>
+    <RootNamespace>gw2lam.UI</RootNamespace>
+    <AssemblyName>gw2lam-UI</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -50,7 +50,7 @@
     <Compile Include="ApplicationWindow.Designer.cs">
       <DependentUpon>ApplicationWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
+    <Compile Include="OnlineStart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ApplicationWindow.resx">
       <DependentUpon>ApplicationWindow.cs</DependentUpon>
@@ -63,6 +63,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

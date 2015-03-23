@@ -26,15 +26,15 @@ namespace gw2lam
     public class PlayerTracker
     {
 
-        public bool isRunning { get; private set; }
         private Thread currentThread;
-        private Player playerData;
 
+        public bool isRunning { get; private set; }
+        public Player PlayerData {get; set;}
         public string PlayerName
         {
             get
             {
-                return this.playerData.CharacterName;
+                return this.PlayerData.CharacterName;
             }
         }
 
@@ -45,7 +45,7 @@ namespace gw2lam
         public PlayerTracker()
         {
             this.isRunning = false;
-            this.playerData = Gw2PositionReaderApi.GetPlayerDataInstance();
+            this.PlayerData = Gw2PositionReaderApi.GetPlayerDataInstance();
         }
 
         public void Start()
@@ -66,7 +66,7 @@ namespace gw2lam
             while (this.isRunning)
             {
 
-                if (tick == playerData.Tick && (DateTime.Now - timeSinceLastTick).Seconds > 1)
+                if (tick == PlayerData.Tick && (DateTime.Now - timeSinceLastTick).Seconds > 1)
                 {
                     if (incomingUpdates)
                     {
@@ -81,7 +81,7 @@ namespace gw2lam
 
                 if(!incomingUpdates)
                 {
-                    if (tick != playerData.Tick)
+                    if (tick != PlayerData.Tick)
                     {
                         incomingUpdates = true;
                         if (this.OnUpdateStart != null) 
@@ -92,9 +92,9 @@ namespace gw2lam
                     }
                 }
 
-                if (mapID != playerData.MapId)
+                if (mapID != PlayerData.MapId)
                 {
-                    mapID = this.playerData.MapId;
+                    mapID = this.PlayerData.MapId;
                     if (this.OnMapChange != null)
                     {
                         PlayerTrackerEventArgs e = new PlayerTrackerEventArgs(mapID, tick);
@@ -102,9 +102,9 @@ namespace gw2lam
                     }
                 }
 
-                if (tick != playerData.Tick)
+                if (tick != PlayerData.Tick)
                 {
-                    tick = this.playerData.Tick;
+                    tick = this.PlayerData.Tick;
                     timeSinceLastTick = DateTime.Now;
                 }
                 

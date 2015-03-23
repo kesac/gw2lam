@@ -9,14 +9,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using gw2lam;
 
-namespace gw2lam_ui
+namespace gw2lam.UI
 {
     public partial class ApplicationWindow : Form
     {
-
-        //private readonly string musicPage = "<html><body><iframe width=\"320\" height=\"192\" src=\"https://www.youtube.com/embed/{0}?autoplay=1&loop=1\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
-        private readonly string musicPage = "https://www.youtube.com/v/{0}?autoplay=1&loop=1&playlist={1}";
-        private readonly string emptyPage = "<html><head><body style=\"font-family: serif; background-color: black; color: white\">No music available for this area.</body></html>";
+        private readonly string MusicPage = "https://www.youtube.com/v/{0}?autoplay=1&loop=1&playlist={1}";
+        private readonly string EmptyPage = "<html><head><body style=\"font-family: serif; background-color: black; color: white\">No music available for this area.</body></html>";
 
         private MapManager maps;
         private MusicManager musicManager;
@@ -27,10 +25,12 @@ namespace gw2lam_ui
             InitializeComponent();
             this.Text = "";
             this.browser.Disposed += browser_Disposed;
-            this.browser.DocumentText = emptyPage;
+            this.browser.DocumentText = EmptyPage;
 
             this.maps = new MapManager();
             this.maps.InitializeLocalCache();
+
+            this.musicManager = new MusicManager(MusicMode.Online);
 
             this.tracker = new PlayerTracker();
             this.tracker.OnMapChange += OnMapChange;
@@ -39,16 +39,19 @@ namespace gw2lam_ui
             this.tracker.Start();
         }
 
-
+        /// <summary>
+        /// TODO: Allow method to receive multiple videos
+        /// </summary>
+        /// <param name="id"></param>
         private void SetVideo(string id)
         {
             if (id == null)
             {
-                this.browser.DocumentText = emptyPage;
+                this.browser.DocumentText = EmptyPage;
             }
             else
             {
-                this.browser.Navigate(string.Format(musicPage, id, id));
+                this.browser.Navigate(string.Format(MusicPage, id, id));
             }
         }
 
@@ -67,9 +70,11 @@ namespace gw2lam_ui
                 this.Text = title;
             }
 
-            if (e.MapID == 15)
-            {    
-                this.SetVideo("FIzJVTb6-8k");
+            List<string> tracks = this.musicManager.GetTracks(this.maps.GetName(e.MapID));
+
+            if (tracks.Count > 0)
+            { 
+                this.SetVideo(tracks[0]);
             }
             else
             {

@@ -23,26 +23,62 @@ namespace gw2lam
     {
         
         private static readonly string MusicPath = "music";
-        private static readonly string OnlineMusicFile = MusicPath + "\\online.ini";
-        private static readonly string[] SUPPORTED_FORMATS = new string[] { ".mp3", ".wav", ".ogg" };
+        private static readonly string OnlineMusicFile = "online.ini";
+        private static readonly string[] SupportedFormats = new string[] { ".mp3", ".wav", ".ogg" };
 
         private MusicMode mode;
+        private Dictionary<string, List<string>> onlineTracks;
 
         public MusicManager(MusicMode mode)
         {
             this.mode = mode;
 
-            if (mode == MusicMode.Online)
+            if (mode == MusicMode.Offline)
             {
                 if (!Directory.Exists(MusicManager.MusicPath))
                 {
                     Directory.CreateDirectory(MusicManager.MusicPath);
                 }
-
+            }
+            else if (mode == MusicMode.Online)
+            {
                 if (!File.Exists(MusicManager.OnlineMusicFile))
                 {
                     File.Create(MusicManager.OnlineMusicFile);
                 }
+
+                this.onlineTracks = new Dictionary<string, List<string>>();
+                this.ProcessOnlineIni();
+
+            }
+        }
+
+        private void ProcessOnlineIni()
+        {
+            using (StreamReader reader = new StreamReader(MusicManager.OnlineMusicFile))
+            {
+
+                string currentMap = string.Empty;
+                string line = string.Empty;
+
+                do
+                {
+                    line = reader.ReadLine();
+
+                    // TODO: Use regex instead
+                    if (line.Trim().StartsWith("["))
+                    {
+                        currentMap = line.Replace("[", "").Replace("]", "").Trim();
+                        this.onlineTracks[currentMap] = new List<string>();
+                        System.Diagnostics.Debug.WriteLine("New map defined: " + currentMap);
+                    }
+                    else if (line.Trim() != string.Empty)
+                    {
+                        this.onlineTracks[currentMap].Add(line.Trim());
+                        System.Diagnostics.Debug.WriteLine("Added track to " + currentMap + ":" + line.Trim());
+                    }
+
+                } while (!reader.EndOfStream);
             }
         }
 
@@ -56,7 +92,9 @@ namespace gw2lam
             }
             else if (this.mode == MusicMode.Online)
             {
-                // read online.ini
+                if(this.onlineTracks.ContainsKey(mapName)){
+                    result.AddRange(this.onlineTracks[mapName]);
+                }
             }
 
             return result;
@@ -79,7 +117,7 @@ namespace gw2lam
                 string[] files = Directory.GetFiles(Path.GetFullPath(path));
                 foreach (string f in files)
                 {
-                    foreach (string format in SUPPORTED_FORMATS)
+                    foreach (string format in SupportedFormats)
                     {
                         if (f.EndsWith(format))
                         {
@@ -91,14 +129,6 @@ namespace gw2lam
             } // eo if (Directory.Exists(path))
 
             return result;
-        }
-
-        public void InitializeOnlineIni()
-        {
-            if (this.mode == MusicMode.Online)
-            {
-                
-            }
         }
 
     }

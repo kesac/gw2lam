@@ -1,4 +1,4 @@
-﻿namespace gw2lam_ui
+﻿namespace gw2lam.UI
 {
     partial class ApplicationWindow
     {
