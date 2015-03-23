@@ -14,59 +14,55 @@ using System.Text;
 
 namespace gw2lam
 {
-    class Program
+    class OfflineStart
     {
         static void Main(string[] args)
         {
-
-            Setup();
-
-            MapManager maps = new MapManager();
-            maps.InitializeLocalCache();
-
-            Player playerData = Gw2PositionReaderApi.GetPlayerDataInstance();
+            PlayerTracker tracker = new PlayerTracker();
+            MapManager mapManager = new MapManager();
+            mapManager.InitializeLocalCache();
 
             MusicManager musicManager = new MusicManager(MusicMode.Offline);
-            MusicPlayer music = new MusicPlayer();
-            
+            MusicPlayer musicPlayer = new MusicPlayer();
+
             string currentMap = "";
             uint tick = 0;
             uint mapID = 0;
-            
+
             do
             {
                 while (!Console.KeyAvailable){
 
-                    UpdateConsole(music, playerData, currentMap);
+                    UpdateConsole(musicPlayer, tracker.PlayerData, currentMap);
 
-                    if (mapID != playerData.MapId)
+                    if (mapID != tracker.PlayerData.MapId)
                     {
                         // The map has changed, abruptly stop the music and start a new track
-                        music.StopAudio();
-                        mapID = playerData.MapId;
+                        musicPlayer.StopAudio();
+                        mapID = tracker.PlayerData.MapId;
 
-                        string mapName = maps.GetName(mapID);
+                        string mapName = mapManager.GetName(mapID);
 
                         if (mapName != null)
                         {
-                            music.Playlist = musicManager.GetTracks(maps.GetName(mapID));
+                            musicPlayer.Playlist = musicManager.GetTracks(mapManager.GetName(mapID));
 
-                            if (music.Playlist.Count > 0)
+                            if (musicPlayer.Playlist.Count > 0)
                             {
-                                music.PlayRandomTrack();
+                                musicPlayer.PlayRandomTrack();
                             }
                         }
                         
                         tick--; // This is to prevent a fadeout during the next iteration because the tick hasn't change yet even though the map just has
 
                     }
-                    else if (tick == playerData.Tick && music.IsPlaying)
+                    else if (tick == tracker.PlayerData.Tick && musicPlayer.IsPlaying)
                     {
                         // The ticks have stopped updating. We are likely in a map transition.
                         // Fade out instead of abruptly stopping the music.
-                        music.FadeStop();
+                        musicPlayer.FadeStop();
                     }
-                    else if (tick != playerData.Tick && mapID == playerData.MapId && !music.IsPlaying) // The music has finished and a new track must be selected.
+                    else if (tick != tracker.PlayerData.Tick && mapID == tracker.PlayerData.MapId && !musicPlayer.IsPlaying) // The music has finished and a new track must be selected.
                     {
                         // This will force the next iteration of this loop to select a new track.
                         // If there is only one track associated with the map, this will effectively
@@ -74,40 +70,14 @@ namespace gw2lam
                         mapID = 0;
                     }
 
-                    music.Update();
-                    tick = playerData.Tick;
+                    musicPlayer.Update();
+                    tick = tracker.PlayerData.Tick;
 
                     Thread.Sleep(200);
                 }
 
             } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
             /**/
-        }
-
-        private static void Setup()
-        {
-            // Create a music folder if it doesn't exist
-            if (!Directory.Exists("music"))
-            {
-                Directory.CreateDirectory("music");
-            }
-
-            // Turn off all logging of the GwApiNET library
-            foreach (string loggerName in GwApiNET.Constants.LoggerNames)
-            {
-                try
-                {
-                    foreach (GwLogManager.LogLevel logLevel in Enum.GetValues(typeof(GwLogManager.LogLevel)))
-                    {
-                        GwLogManager.SetLogLevel(loggerName, false, logLevel);
-                    }
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-
-            }
         }
 
         private static void UpdateConsole(MusicPlayer music, Player playerData, string mapName)

@@ -61,7 +61,7 @@ namespace gw2lam
                 string currentMap = string.Empty;
                 string line = string.Empty;
 
-                do
+                while (!reader.EndOfStream)
                 {
                     line = reader.ReadLine();
 
@@ -77,8 +77,7 @@ namespace gw2lam
                         this.onlineTracks[currentMap].Add(line.Trim());
                         System.Diagnostics.Debug.WriteLine("Added track to " + currentMap + ":" + line.Trim());
                     }
-
-                } while (!reader.EndOfStream);
+                }
             }
         }
 

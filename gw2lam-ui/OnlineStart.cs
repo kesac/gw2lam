@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace gw2lam_ui
+namespace gw2lam.UI
 {
-    static class Program
+    static class OnlineStart
     {
         /// <summary>
         /// The main entry point for the application.
