@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2013 for Windows Desktop
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gw2lam", "gw2lam.csproj", "{4F13A561-8B3E-4456-8D42-A094076E2373}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gw2lam-core", "gw2lam-core.csproj", "{4F13A561-8B3E-4456-8D42-A094076E2373}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gw2lam-ui", "..\gw2lam-ui\gw2lam-ui.csproj", "{6C6D2A05-1529-4599-8723-3E591C1A1667}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gw2lam-online", "..\gw2lam-ui\gw2lam-online.csproj", "{6C6D2A05-1529-4599-8723-3E591C1A1667}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gw2lam-offline", "..\gw2lam-offline\gw2lam-offline.csproj", "{D2025ECD-4A48-4872-BCED-4494D745E8EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{6C6D2A05-1529-4599-8723-3E591C1A1667}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C6D2A05-1529-4599-8723-3E591C1A1667}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C6D2A05-1529-4599-8723-3E591C1A1667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2025ECD-4A48-4872-BCED-4494D745E8EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2025ECD-4A48-4872-BCED-4494D745E8EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2025ECD-4A48-4872-BCED-4494D745E8EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2025ECD-4A48-4872-BCED-4494D745E8EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

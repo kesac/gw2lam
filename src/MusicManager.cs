@@ -23,11 +23,12 @@ namespace gw2lam
     {
         
         private static readonly string MusicPath = "music";
-        private static readonly string OnlineMusicFile = "online.ini";
+        public static readonly string OnlineMusicFile = "music.cfg";
         private static readonly string[] SupportedFormats = new string[] { ".mp3", ".wav", ".ogg" };
 
         private MusicMode mode;
         private Dictionary<string, List<string>> onlineTracks;
+        private FileSystemWatcher watcher;
 
         public MusicManager(MusicMode mode)
         {
@@ -44,17 +45,35 @@ namespace gw2lam
             {
                 if (!File.Exists(MusicManager.OnlineMusicFile))
                 {
-                    File.Create(MusicManager.OnlineMusicFile);
+                    StringBuilder builder = new StringBuilder();
+                    using (StreamWriter writer = File.CreateText(MusicManager.OnlineMusicFile))
+                    {
+                        writer.WriteLine(builder.ToString());
+                    }
                 }
 
                 this.onlineTracks = new Dictionary<string, List<string>>();
                 this.ProcessOnlineIni();
 
             }
+
+            this.watcher = new FileSystemWatcher(Directory.GetCurrentDirectory(), ".cfg");
+            this.watcher.Changed += FileSystemChangeEvent;
         }
 
+        private void FileSystemChangeEvent(object sender, FileSystemEventArgs e)
+        {
+            this.ProcessOnlineIni();
+        }
+
+        /// <summary>
+        /// This is called once during instantiation and everytime MusicManager.OnlineMusicFile
+        /// changes on the filesystem.
+        /// </summary>
         private void ProcessOnlineIni()
         {
+            this.onlineTracks.Clear();
+
             using (StreamReader reader = new StreamReader(MusicManager.OnlineMusicFile))
             {
 
@@ -66,7 +85,11 @@ namespace gw2lam
                     line = reader.ReadLine();
 
                     // TODO: Use regex instead
-                    if (line.Trim().StartsWith("["))
+                    if (line.Trim().StartsWith("#")) // ignore comments
+                    {
+                        continue;
+                    }
+                    else if (line.Trim().StartsWith("["))
                     {
                         currentMap = line.Replace("[", "").Replace("]", "").Trim();
                         this.onlineTracks[currentMap] = new List<string>();

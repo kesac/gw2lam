@@ -2,17 +2,11 @@
 using System.IO;
 using System.Threading;
 using System.Collections.Generic;
-using GwApiNET.Gw2PositionReader;
-using GwApiNET.ResponseObjects;
-using GwApiNET.Logging;
-
-using NAudio;
-using NAudio.Wave;
-using Newtonsoft.Json;
 using System.Net;
 using System.Text;
+using GwApiNET.Gw2PositionReader;
 
-namespace gw2lam
+namespace gw2lam.offline
 {
     class OfflineStart
     {
@@ -77,6 +71,8 @@ namespace gw2lam
                 }
 
             } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+
+            tracker.CleanUpLogFiles();
             /**/
         }
 

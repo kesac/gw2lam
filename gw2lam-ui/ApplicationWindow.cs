@@ -14,7 +14,7 @@ namespace gw2lam.UI
     public partial class ApplicationWindow : Form
     {
         private readonly string MusicPage = "https://www.youtube.com/v/{0}?autoplay=1&loop=1&playlist={1}";
-        private readonly string EmptyPage = "<html><head><body style=\"font-family: serif; background-color: black; color: white\">No music available for this area.</body></html>";
+        private readonly string EmptyPage = "<html><head><body style=\"font-family: courier; background-color: black; color: white\">You are currently in a map transition or no music has been defined for your current area. Modify <b>" + MusicManager.OnlineMusicFile +"</b> to add music!</body></html>";
 
         private MapManager maps;
         private MusicManager musicManager;
@@ -23,6 +23,7 @@ namespace gw2lam.UI
         public ApplicationWindow()
         {
             InitializeComponent();
+
             this.Text = "";
             this.browser.Disposed += browser_Disposed;
             this.browser.DocumentText = EmptyPage;
@@ -98,6 +99,7 @@ namespace gw2lam.UI
         private void browser_Disposed(object sender, EventArgs e)
         {
             // application will keep running even if the window is closed unless the tracker is stopped as well
+            this.tracker.CleanUpLogFiles();
             this.tracker.Stop();
         }
 

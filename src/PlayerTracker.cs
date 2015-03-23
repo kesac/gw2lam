@@ -1,10 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GwApiNET.Gw2PositionReader;
+using GwApiNET.Logging;
 
 namespace gw2lam
 {
@@ -47,6 +49,7 @@ namespace gw2lam
             this.isRunning = false;
             this.PlayerData = Gw2PositionReaderApi.GetPlayerDataInstance();
         }
+
 
         public void Start()
         {
@@ -115,6 +118,22 @@ namespace gw2lam
         public void Stop()
         {
             this.isRunning = false;
+        }
+
+        public void CleanUpLogFiles()
+        {
+            // Clean-up log files
+            string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
+            foreach (string f in files)
+            {
+                string[] tokens = f.Split('\\');
+                string filename = tokens[tokens.Length - 1];
+                System.Diagnostics.Debug.WriteLine(filename);
+                if (filename.StartsWith("GwApiNETLog") && filename.EndsWith(".txt"))
+                {
+                    File.Delete(filename);
+                }
+            }
         }
         
     }
