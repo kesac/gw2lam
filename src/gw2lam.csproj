@@ -73,6 +73,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MapManager.cs" />
+    <Compile Include="MusicManager.cs" />
     <Compile Include="PlayerTracker.cs" />
     <Compile Include="MusicPlayer.cs" />
     <Compile Include="OldProgram.cs" />

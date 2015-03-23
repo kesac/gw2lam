@@ -14,33 +14,19 @@ using System.Text;
 
 namespace gw2lam
 {
-
-    public class MapData
-    {
-        public string map_name { get; set; }
-    }
-
-    public class APIResponse
-    {
-        public Dictionary<int, MapData> maps { get; set; }
-    }
-
     class Program
     {
-
-        private const string MAP_DATA_FILE = "maps.json";
-        private const string MAP_DATA_API = "http://api.guildwars2.com/v1/maps.json";
-
-        private static readonly string[] SUPPORTED_FORMATS = new string[]{ ".mp3", ".wav", ".ogg" };
-
-
         static void Main(string[] args)
         {
 
             Setup();
 
+            MapManager maps = new MapManager();
+            maps.InitializeLocalCache();
+
             Player playerData = Gw2PositionReaderApi.GetPlayerDataInstance();
-            Dictionary<int, MapData> maps = GetMapsData();
+
+            MusicManager musicManager = new MusicManager(MusicMode.Offline);
             MusicPlayer music = new MusicPlayer();
             
             string currentMap = "";
@@ -59,24 +45,18 @@ namespace gw2lam
                         music.StopAudio();
                         mapID = playerData.MapId;
 
-                        // If this map's name is not in our lookup table, we use the convention mapXXX
-                        // where XXX is the ID
-                        string path = "music\\map" + mapID;
-                        currentMap = "map" + mapID;
+                        string mapName = maps.GetName(mapID);
 
-                        if (maps.ContainsKey((int)mapID))
+                        if (mapName != null)
                         {
-                            path = "music\\" + maps[(int)mapID].map_name;
-                            currentMap = maps[(int)mapID].map_name;
+                            music.Playlist = musicManager.GetTracks(maps.GetName(mapID));
+
+                            if (music.Playlist.Count > 0)
+                            {
+                                music.PlayRandomTrack();
+                            }
                         }
                         
-
-                        if (Directory.Exists(path))
-                        {
-                            music.Playlist = GetMusic(path);
-                            music.PlayRandomTrack();
-                        }
-
                         tick--; // This is to prevent a fadeout during the next iteration because the tick hasn't change yet even though the map just has
 
                     }
@@ -93,7 +73,6 @@ namespace gw2lam
                         // loop the track.
                         mapID = 0;
                     }
-
 
                     music.Update();
                     tick = playerData.Tick;
@@ -131,29 +110,6 @@ namespace gw2lam
             }
         }
 
-        private static Dictionary<int, MapData> GetMapsData()
-        {
-            // Create our look-up table to convert map IDs to names
-            string rawData;
-            if (!File.Exists(MAP_DATA_FILE)) // Download maps.json if it doesn't exist
-            {
-                WebClient client = new WebClient();
-                rawData = client.DownloadString(MAP_DATA_API);
-                File.WriteAllText(MAP_DATA_FILE, rawData);
-            }
-            else
-            {
-                using (StreamReader streamReader = new StreamReader(MAP_DATA_FILE, Encoding.UTF8))
-                {
-                    rawData = streamReader.ReadToEnd();
-                }
-            }
-
-            APIResponse response = JsonConvert.DeserializeObject<APIResponse>(rawData);
-            return response.maps;
-        }
-
-
         private static void UpdateConsole(MusicPlayer music, Player playerData, string mapName)
         {
             Console.Clear();
@@ -185,29 +141,6 @@ namespace gw2lam
                     Console.WriteLine("+ " + tokens[tokens.Length-1]);
                 }
             }
-        }
-
-
-        private static List<string> GetMusic(string directory)
-        {
-            string[] files = Directory.GetFiles(Path.GetFullPath(directory));
-            
-
-            List<string> musicFiles = new List<string>();
-
-            foreach (string f in files)
-            {
-                foreach (string format in SUPPORTED_FORMATS)
-                {
-                    if (f.EndsWith(format))
-                    {
-                        musicFiles.Add(f);
-                        break;
-                    }
-                }
-            }
-
-            return musicFiles;
         }
 
     }

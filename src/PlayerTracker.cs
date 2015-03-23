@@ -30,6 +30,14 @@ namespace gw2lam
         private Thread currentThread;
         private Player playerData;
 
+        public string PlayerName
+        {
+            get
+            {
+                return this.playerData.CharacterName;
+            }
+        }
+
         public event PlayerTrackerEventHandler OnUpdateStop;
         public event PlayerTrackerEventHandler OnUpdateStart;
         public event PlayerTrackerEventHandler OnMapChange;

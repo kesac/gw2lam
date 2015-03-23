@@ -14,34 +14,86 @@ namespace gw2lam_ui
     public partial class ApplicationWindow : Form
     {
 
-        private readonly string musicPage = "<html><body><iframe width=\"320\" height=\"192\" src=\"https://www.youtube.com/embed/{0}?autoplay=1\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
-        private readonly string emptyPage = "<html><head><body>Not playing!</body></html>";
-        
+        //private readonly string musicPage = "<html><body><iframe width=\"320\" height=\"192\" src=\"https://www.youtube.com/embed/{0}?autoplay=1&loop=1\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
+        private readonly string musicPage = "https://www.youtube.com/v/{0}?autoplay=1&loop=1&playlist={1}";
+        private readonly string emptyPage = "<html><head><body style=\"font-family: serif; background-color: black; color: white\">No music available for this area.</body></html>";
+
+        private MapManager maps;
+        private MusicManager musicManager;
         private PlayerTracker tracker;
-        private MusicPlayer music;
 
         public ApplicationWindow()
         {
             InitializeComponent();
-            this.tracker = new PlayerTracker();
-            this.music = new MusicPlayer();
-
-            this.tracker.OnMapChange += tracker_OnMapChange;
+            this.Text = "";
+            this.browser.Disposed += browser_Disposed;
             this.browser.DocumentText = emptyPage;
-            this.tracker.Start();
 
+            this.maps = new MapManager();
+            this.maps.InitializeLocalCache();
+
+            this.tracker = new PlayerTracker();
+            this.tracker.OnMapChange += OnMapChange;
+            this.tracker.OnUpdateStop += OnUpdateStop;
+            this.tracker.OnUpdateStart += OnUpdateStart;
+            this.tracker.Start();
         }
 
-        private void tracker_OnMapChange(object sender, PlayerTrackerEventArgs e)
+
+        private void SetVideo(string id)
         {
-            if (e.MapID == 15)
-            {
-                this.browser.DocumentText = string.Format(musicPage, "Jxnf5uaeRDE");
-            }
-            else
+            if (id == null)
             {
                 this.browser.DocumentText = emptyPage;
             }
+            else
+            {
+                this.browser.Navigate(string.Format(musicPage, id, id));
+            }
+        }
+
+
+        private void OnMapChange(object sender, PlayerTrackerEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Map changed to " + e.MapID);
+
+            string title = "GW2-LAM: " + this.tracker.PlayerName + " currently in " + this.maps.GetName(e.MapID);
+
+            if (this.InvokeRequired) {
+                this.Invoke(new MethodInvoker(delegate { this.Text = title; }));
+            }
+            else
+            {
+                this.Text = title;
+            }
+
+            if (e.MapID == 15)
+            {    
+                this.SetVideo("FIzJVTb6-8k");
+            }
+            else
+            {
+                this.SetVideo(null);
+            }
+        }
+
+
+        private void OnUpdateStop(object sender, PlayerTrackerEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Updates stopped on " + DateTime.Now);
+            this.SetVideo(null);
+        }
+
+        private void OnUpdateStart(object sender, PlayerTrackerEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Updates started on " + DateTime.Now);
+        }
+
+
+        private void browser_Disposed(object sender, EventArgs e)
+        {
+            // application will keep running even if the window is closed unless the tracker is stopped as well
+            this.tracker.Stop();
         }
 
         private void browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
