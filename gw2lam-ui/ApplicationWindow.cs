@@ -14,7 +14,7 @@ namespace gw2lam.UI
     public partial class ApplicationWindow : Form
     {
         private readonly string MusicPage = "https://www.youtube.com/v/{0}?autoplay=1&loop=1&playlist={1}";
-        private readonly string EmptyPage = "<html><head><body style=\"font-family: courier; background-color: black; color: white\">You are currently in a map transition or no music has been defined for your current area. Modify <b>" + MusicManager.OnlineMusicFile +"</b> to add music!</body></html>";
+        private readonly string EmptyPage = "<html><head><body style=\"font-family: courier; background-color: black; color: white\">Either no music has been defined for your current area or no positional updates are being received from Guild Wars 2. Modify <b>" + MusicManager.OnlineMusicFile +"</b> to add music!</body></html>";
 
         private MapManager maps;
         private MusicManager musicManager;
@@ -44,15 +44,30 @@ namespace gw2lam.UI
         /// TODO: Allow method to receive multiple videos
         /// </summary>
         /// <param name="id"></param>
-        private void SetVideo(string id)
+        private void SetVideo(params string[] ids)
         {
-            if (id == null)
+            if (ids == null && ids.Length > 0)
             {
                 this.browser.DocumentText = EmptyPage;
             }
             else
             {
-                this.browser.Navigate(string.Format(MusicPage, id, id));
+                StringBuilder playlist = new StringBuilder();
+
+                if (ids.Length > 1) // additional tracks must be placed in the playlist parameter
+                { 
+                    for (int i = 1; i < ids.Length; i++)
+                    {
+                        playlist.Append(ids[i] + ",");
+                    }
+                    playlist.Remove(playlist.Length - 1, 1); // remove trailing comma
+                }
+                else // If there's only one track, we must place the single track in its own playlist or it won't loop
+                {
+                    playlist.AppendLine(ids[0]);
+                }
+
+                this.browser.Navigate(string.Format(MusicPage, ids[0], playlist.ToString()));
             }
         }
 
@@ -74,8 +89,9 @@ namespace gw2lam.UI
             List<string> tracks = this.musicManager.GetTracks(this.maps.GetName(e.MapID));
 
             if (tracks.Count > 0)
-            { 
-                this.SetVideo(tracks[0]);
+            {
+                this.ShuffleList(tracks);
+                this.SetVideo(tracks.ToArray());
             }
             else
             {
@@ -83,11 +99,25 @@ namespace gw2lam.UI
             }
         }
 
+        private void ShuffleList(List<string> tracks)
+        {
+            Random r = new Random();
+            int size = tracks.Count;
+            for (int i = size - 1; i > 0; i--)
+            {
+                int index = r.Next(i + 1);
+                string swap = tracks[index];
+                tracks.RemoveAt(index);
+                tracks.Add(swap);
+            }
+
+        }
 
         private void OnUpdateStop(object sender, PlayerTrackerEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Updates stopped on " + DateTime.Now);
             this.SetVideo(null);
+            string title = "GW2-LAM: " + this.tracker.PlayerName + " currently in an unknown area";
         }
 
         private void OnUpdateStart(object sender, PlayerTrackerEventArgs e)
