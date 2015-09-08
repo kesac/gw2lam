@@ -9,7 +9,7 @@ using NAudio.Wave;
 using NVorbis.NAudioSupport;
 using Newtonsoft.Json;
 
-namespace gw2lam
+namespace Turtlesort.Glam.Old
 {
     public class MusicPlayer
     {

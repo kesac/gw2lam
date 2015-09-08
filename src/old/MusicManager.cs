@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace gw2lam
+namespace Turtlesort.Glam.Old
 {
     public enum MusicMode { Offline, Online };
 

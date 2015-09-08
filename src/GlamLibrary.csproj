@@ -7,7 +7,7 @@
     <ProjectGuid>{4F13A561-8B3E-4456-8D42-A094076E2373}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>gw2lam.Core</RootNamespace>
+    <RootNamespace>Turtlesort.Glam.Core</RootNamespace>
     <AssemblyName>gw2lam-core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -91,16 +91,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlamCore.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapsApi.cs" />
     <Compile Include="old\MapManager.cs" />
     <Compile Include="old\MusicManager.cs" />
-    <Compile Include="PlayerTracker.cs" />
+    <Compile Include="MapChangeListener.cs" />
     <Compile Include="old\MusicPlayer.cs" />
-    <Compile Include="PlayerTrackerEventArgs.cs" />
-    <Compile Include="PlayerTrackerEventHandler.cs" />
+    <Compile Include="MapChangeEventArgs.cs" />
+    <Compile Include="MapChangeEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Track.cs" />
+    <Compile Include="MusicTrack.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 using GwApiNET.Gw2PositionReader;
 using GwApiNET.Logging;
 
-namespace gw2lam
+namespace Turtlesort.Glam.Core
 {
     /*
-     * Uses GwApiNET's position reader to detect the player's movement, specifically
-     * looking for when the player enters or exists a map.
+     * Uses GwApiNET's position reader to detect when the player enters or exits a map
      */
-    public class PlayerTracker
+    public class MapChangeListener
     {
         private Thread currentThread;
 
@@ -28,11 +27,11 @@ namespace gw2lam
             }
         }
 
-        public event PlayerTrackerEventHandler OnUpdateStop;
-        public event PlayerTrackerEventHandler OnUpdateStart;
-        public event PlayerTrackerEventHandler OnMapChange;
+        public event MapChangeEventHandler OnUpdateStop;
+        public event MapChangeEventHandler OnUpdateStart;
+        public event MapChangeEventHandler OnMapChange;
 
-        public PlayerTracker()
+        public MapChangeListener()
         {
             this.isRunning = false;
             this.PlayerData = Gw2PositionReaderApi.GetPlayerDataInstance();
@@ -67,7 +66,7 @@ namespace gw2lam
                         incomingUpdates = false;
                         if (this.OnUpdateStop != null)
                         {
-                            PlayerTrackerEventArgs e = new PlayerTrackerEventArgs(mapID, tick);
+                            MapChangeEventArgs e = new MapChangeEventArgs(mapID, tick);
                             this.OnUpdateStop(this, e);
                         }
                     }
@@ -80,7 +79,7 @@ namespace gw2lam
                         incomingUpdates = true;
                         if (this.OnUpdateStart != null) 
                         { 
-                            PlayerTrackerEventArgs e = new PlayerTrackerEventArgs(mapID, tick);
+                            MapChangeEventArgs e = new MapChangeEventArgs(mapID, tick);
                             this.OnUpdateStart(this, e);
                         }
                     }
@@ -91,7 +90,7 @@ namespace gw2lam
                     mapID = this.PlayerData.MapId;
                     if (this.OnMapChange != null)
                     {
-                        PlayerTrackerEventArgs e = new PlayerTrackerEventArgs(mapID, tick);
+                        MapChangeEventArgs e = new MapChangeEventArgs(mapID, tick);
                         this.OnMapChange(this, e);
                     }
                 }

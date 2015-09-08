@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using gw2lam;
+using Turtlesort.Glam.Core;
 
 namespace gw2lam_tests
 {
@@ -13,7 +13,7 @@ namespace gw2lam_tests
         {
             MapsApi api = new MapsApi();
             api.EnableLocalCache = true;
-            Dictionary <uint, Map> maps = api.Load();
+            Dictionary <uint, Map> maps = api.Read();
             
             System.Console.WriteLine(maps.Count);
 

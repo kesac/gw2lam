@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace gw2lam
+namespace Turtlesort.Glam.Core
 {
-    public class PlayerTrackerEventArgs : EventArgs
+    public class MapChangeEventArgs : EventArgs
     {
         public uint MapID { get; set; }
         public uint Tick { get; set; }
 
-        public PlayerTrackerEventArgs(uint mapID, uint tick)
+        public MapChangeEventArgs(uint mapID, uint tick)
         {
             this.MapID = mapID;
             this.Tick = tick;

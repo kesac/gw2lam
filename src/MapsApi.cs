@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace gw2lam
+namespace Turtlesort.Glam.Core
 {
     // Requests maps data from the Guild Wars 2 official API (V2).
     // Call Load() to get a dictionary of Map data (map ids are the keys, and
@@ -33,7 +33,7 @@ namespace gw2lam
         /*
          * Makes requests to the Maps API and obtains data for all existing GW2 maps
          */
-        public Dictionary<uint, Map> Load()
+        public Dictionary<uint, Map> Read()
         {
 
             Dictionary<uint, Map> maps = new Dictionary<uint, Map>();

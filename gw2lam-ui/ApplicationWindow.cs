@@ -7,9 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using gw2lam;
+using Turtlesort.Glam.Core;
+using Turtlesort.Glam.Old;
 
-namespace gw2lam.UI
+namespace Turtlesort.Glam.Online
 {
     public partial class ApplicationWindow : Form
     {
@@ -18,7 +19,7 @@ namespace gw2lam.UI
 
         private MapManagerOld maps;
         private MusicManager musicManager;
-        private PlayerTracker tracker;
+        private MapChangeListener tracker;
 
         public ApplicationWindow()
         {
@@ -32,7 +33,7 @@ namespace gw2lam.UI
 
             this.musicManager = new MusicManager(MusicMode.Online);
 
-            this.tracker = new PlayerTracker();
+            this.tracker = new MapChangeListener();
             this.tracker.OnMapChange += OnMapChange;
             this.tracker.OnUpdateStop += OnUpdateStop;
             this.tracker.OnUpdateStart += OnUpdateStart;
@@ -71,7 +72,7 @@ namespace gw2lam.UI
         }
 
 
-        private void OnMapChange(object sender, PlayerTrackerEventArgs e)
+        private void OnMapChange(object sender, MapChangeEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Map changed to " + e.MapID);
 
@@ -112,14 +113,14 @@ namespace gw2lam.UI
 
         }
 
-        private void OnUpdateStop(object sender, PlayerTrackerEventArgs e)
+        private void OnUpdateStop(object sender, MapChangeEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Updates stopped on " + DateTime.Now);
             this.SetVideo(null);
             string title = "GW2-LAM: " + this.tracker.PlayerName + " currently in an unknown area";
         }
 
-        private void OnUpdateStart(object sender, PlayerTrackerEventArgs e)
+        private void OnUpdateStart(object sender, MapChangeEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Updates started on " + DateTime.Now);
         }

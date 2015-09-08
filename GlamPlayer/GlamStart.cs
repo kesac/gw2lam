@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GwApiNET.Logging;
 
-namespace Turtlesort.Glam.Online
+namespace GlamPlayer
 {
-    static class OnlineStart
+    static class GlamStart
     {
         /// <summary>
         /// The main entry point for the application.
@@ -15,10 +14,9 @@ namespace Turtlesort.Glam.Online
         [STAThread]
         static void Main()
         {
-            GwLogManager.SetLogLevel("GwApiNETLogger", false);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ApplicationWindow());
+            Application.Run(new GlamWindow());
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace gw2lam.UI
+﻿namespace Turtlesort.Glam.Online
 {
     partial class ApplicationWindow
     {

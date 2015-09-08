@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace gw2lam
+namespace Turtlesort.Glam.Core
 {
     public class Map
     {
         public uint Id { get; set; }
         public string Name { get; set; }
 
+        
         [JsonIgnore]
         public List<MusicTrack> Tracks {get; private set;}
 
@@ -19,5 +20,6 @@ namespace gw2lam
         {
             this.Tracks = new List<MusicTrack>();
         }
+
     }
 }

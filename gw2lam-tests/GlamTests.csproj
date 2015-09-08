@@ -54,9 +54,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\gw2lam-core.csproj">
+    <ProjectReference Include="..\src\GlamLibrary.csproj">
       <Project>{4f13a561-8b3e-4456-8d42-a094076e2373}</Project>
-      <Name>gw2lam-core</Name>
+      <Name>GlamLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

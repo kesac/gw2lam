@@ -5,14 +5,16 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using GwApiNET.Gw2PositionReader;
+using Turtlesort.Glam.Core;
+using Turtlesort.Glam.Old;
 
-namespace gw2lam.offline
+namespace Turtlesort.Glam.Offline
 {
     class OfflineStart
     {
         static void Main(string[] args)
         {
-            PlayerTracker tracker = new PlayerTracker();
+            MapChangeListener tracker = new MapChangeListener();
             MapManagerOld mapManager = new MapManagerOld();
             mapManager.InitializeLocalCache();
 

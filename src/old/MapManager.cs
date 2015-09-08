@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace gw2lam
+namespace Turtlesort.Glam.Old
 {
 
     public class MapDataOld
