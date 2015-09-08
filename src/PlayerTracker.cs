@@ -10,24 +10,12 @@ using GwApiNET.Logging;
 
 namespace gw2lam
 {
-
-    public delegate void PlayerTrackerEventHandler(object sender, PlayerTrackerEventArgs e);
-
-    public class PlayerTrackerEventArgs : EventArgs
-    {
-        public uint MapID { get; set; }
-        public uint Tick { get; set; }
-
-        public PlayerTrackerEventArgs(uint mapID, uint tick)
-        {
-            this.MapID = mapID;
-            this.Tick = tick;
-        }
-    }
-
+    /*
+     * Uses GwApiNET's position reader to detect the player's movement, specifically
+     * looking for when the player enters or exists a map.
+     */
     public class PlayerTracker
     {
-
         private Thread currentThread;
 
         public bool isRunning { get; private set; }
@@ -53,9 +41,12 @@ namespace gw2lam
 
         public void Start()
         {
-            this.isRunning = true;
-            this.currentThread = new Thread(new ThreadStart(Run));
-            this.currentThread.Start();
+            if (!this.isRunning)
+            {
+                this.isRunning = true;
+                this.currentThread = new Thread(new ThreadStart(Run));
+                this.currentThread.Start();
+            }
         }
 
         private void Run()
@@ -120,6 +111,10 @@ namespace gw2lam
             this.isRunning = false;
         }
 
+        /*
+         * GwApiNET outputs log files that can't seem to be turned off.
+         * They can be manually deleted by calling this method.
+         */
         public void CleanUpLogFiles()
         {
             // Clean-up log files

@@ -13,22 +13,21 @@ namespace gw2lam.UI
 {
     public partial class ApplicationWindow : Form
     {
-        private readonly string MusicPage = "https://www.youtube.com/v/{0}?autoplay=1&loop=1&playlist={1}";
+        private readonly string MusicPage = "https://www.youtube.com/v/{0}?autoplay=1&loop=1&autohide=0&playlist={1}";
         private readonly string EmptyPage = "<html><head><body style=\"font-family: courier; background-color: black; color: white\">Either no music has been defined for your current area or no positional updates are being received from Guild Wars 2. Modify <b>" + MusicManager.OnlineMusicFile +"</b> to add music!</body></html>";
 
-        private MapManager maps;
+        private MapManagerOld maps;
         private MusicManager musicManager;
         private PlayerTracker tracker;
 
         public ApplicationWindow()
         {
             InitializeComponent();
-
             this.Text = "";
             this.browser.Disposed += browser_Disposed;
             this.browser.DocumentText = EmptyPage;
 
-            this.maps = new MapManager();
+            this.maps = new MapManagerOld();
             this.maps.InitializeLocalCache();
 
             this.musicManager = new MusicManager(MusicMode.Online);

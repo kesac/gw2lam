@@ -10,28 +10,28 @@ using Newtonsoft.Json;
 namespace gw2lam
 {
 
-    public class MapData
+    public class MapDataOld
     {
         public string map_name { get; set; }
     }
 
-    public class APIResponse
+    public class APIResponseOld
     {
-        public Dictionary<uint, MapData> maps { get; set; }
+        public Dictionary<uint, MapDataOld> maps { get; set; }
     }
 
-    public class MapManager
+    public class MapManagerOld
     {
 
         private const string MAP_DATA_FILE = "maps.json";
         private const string MAP_DATA_API_V1 = "http://api.guildwars2.com/v1/maps.json";
         private const string MAP_DATA_API_V2 = "http://api.guildwars2.com/v2/maps/";
 
-        private Dictionary<uint, MapData> mapData;
+        private Dictionary<uint, MapDataOld> mapData;
 
-        public MapManager()
+        public MapManagerOld()
         {
-            this.mapData = new Dictionary<uint, MapData>();
+            this.mapData = new Dictionary<uint, MapDataOld>();
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace gw2lam
                 }
             }
 
-            APIResponse response = JsonConvert.DeserializeObject<APIResponse>(rawData);
+            APIResponseOld response = JsonConvert.DeserializeObject<APIResponseOld>(rawData);
             this.mapData = response.maps;
         }
 

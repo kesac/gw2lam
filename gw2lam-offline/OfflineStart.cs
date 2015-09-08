@@ -13,7 +13,7 @@ namespace gw2lam.offline
         static void Main(string[] args)
         {
             PlayerTracker tracker = new PlayerTracker();
-            MapManager mapManager = new MapManager();
+            MapManagerOld mapManager = new MapManagerOld();
             mapManager.InitializeLocalCache();
 
             MusicManager musicManager = new MusicManager(MusicMode.Offline);

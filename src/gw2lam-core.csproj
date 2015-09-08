@@ -91,11 +91,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MapManager.cs" />
-    <Compile Include="MusicManager.cs" />
+    <Compile Include="Map.cs" />
+    <Compile Include="MapsApi.cs" />
+    <Compile Include="old\MapManager.cs" />
+    <Compile Include="old\MusicManager.cs" />
     <Compile Include="PlayerTracker.cs" />
-    <Compile Include="MusicPlayer.cs" />
+    <Compile Include="old\MusicPlayer.cs" />
+    <Compile Include="PlayerTrackerEventArgs.cs" />
+    <Compile Include="PlayerTrackerEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Track.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
