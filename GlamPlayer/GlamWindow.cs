@@ -9,11 +9,13 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Net;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 using Turtlesort.Glam.Core;
 
 namespace GlamPlayer
 {
+    [ComVisibleAttribute(true)]
     public partial class GlamWindow : Form
     {
 
@@ -36,20 +38,33 @@ namespace GlamPlayer
             this.panelControl.Width = ControlPanelWidth;
 
             this.browserPanel.DocumentText = EmptyPage;
+            this.browserPanel.ObjectForScripting = this;
+
+            /*
+            using (StreamReader reader = new StreamReader("YoutubeIFrame.html"))
+            {
+                this.browserPanel.DocumentText = reader.ReadToEnd();
+            }/**/
+
             this.CurrentMapId = UnknownMap;
 
             this.Core = new GlamCore();
             this.Core.Load();
 
-            this.Listener = new MapChangeListener();
-            this.Listener.OnMapChange += OnMapChange;
-            this.Listener.OnUpdateStop += OnMapUpdateStop;
-            this.Listener.Start();
-
+            this.InitializeMapChangeListener();
             this.FormClosing += OnWindowClosing;
 
             this.TitleHeight = this.PointToScreen(Point.Empty).Y - this.Top;  // http://stackoverflow.com/questions/18429425/c-sharp-absolute-position-of-control-on-screen
             this.BorderWidth = this.PointToScreen(Point.Empty).X - this.Left;
+
+        }
+
+        public void InitializeMapChangeListener()
+        {
+            this.Listener = new MapChangeListener();
+            this.Listener.OnMapChange += OnMapChange;
+            this.Listener.OnUpdateStop += OnMapUpdateStop;
+            this.Listener.Start();
 
         }
 
@@ -74,8 +89,12 @@ namespace GlamPlayer
         private void OnWindowClosing(object sender, FormClosingEventArgs e)
         {
             this.Core.SaveTrackData();
-            this.Listener.CleanUpLogFiles();
-            this.Listener.Stop();
+
+            if (this.Listener != null) { 
+                this.Listener.CleanUpLogFiles();
+                this.Listener.Stop();
+            }
+
         }
 
         private void ReloadPlaylist()
