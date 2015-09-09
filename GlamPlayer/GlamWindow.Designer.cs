@@ -31,13 +31,13 @@
             this.textMusicPath = new System.Windows.Forms.TextBox();
             this.buttonAdd = new System.Windows.Forms.Button();
             this.panelControl = new System.Windows.Forms.Panel();
+            this.listOfMusicTracks = new System.Windows.Forms.TextBox();
             this.browserPanel = new System.Windows.Forms.WebBrowser();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panelPlayer = new System.Windows.Forms.Panel();
             this.buttonToggleConrol = new System.Windows.Forms.Button();
             this.buttonRefresh = new System.Windows.Forms.Button();
             this.buttonSwitch = new System.Windows.Forms.Button();
-            this.listOfMusicTracks = new System.Windows.Forms.TextBox();
             this.panelControl.SuspendLayout();
             this.panelPlayer.SuspendLayout();
             this.SuspendLayout();
@@ -61,7 +61,7 @@
             this.buttonAdd.TabIndex = 2;
             this.buttonAdd.Text = "Add";
             this.buttonAdd.UseVisualStyleBackColor = true;
-            this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
+            this.buttonAdd.Click += new System.EventHandler(this.OnAddButtonClick);
             // 
             // panelControl
             // 
@@ -74,6 +74,17 @@
             this.panelControl.Size = new System.Drawing.Size(300, 373);
             this.panelControl.TabIndex = 6;
             // 
+            // listOfMusicTracks
+            // 
+            this.listOfMusicTracks.BackColor = System.Drawing.Color.Black;
+            this.listOfMusicTracks.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.listOfMusicTracks.ForeColor = System.Drawing.SystemColors.Window;
+            this.listOfMusicTracks.Location = new System.Drawing.Point(7, 29);
+            this.listOfMusicTracks.Multiline = true;
+            this.listOfMusicTracks.Name = "listOfMusicTracks";
+            this.listOfMusicTracks.Size = new System.Drawing.Size(290, 341);
+            this.listOfMusicTracks.TabIndex = 3;
+            // 
             // browserPanel
             // 
             this.browserPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -83,6 +94,7 @@
             this.browserPanel.ScrollBarsEnabled = false;
             this.browserPanel.Size = new System.Drawing.Size(415, 373);
             this.browserPanel.TabIndex = 5;
+            this.browserPanel.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.OnBrowserPanelLoadingComplete);
             // 
             // panel1
             // 
@@ -120,7 +132,7 @@
             this.buttonToggleConrol.Size = new System.Drawing.Size(32, 32);
             this.buttonToggleConrol.TabIndex = 6;
             this.buttonToggleConrol.UseVisualStyleBackColor = true;
-            this.buttonToggleConrol.Click += new System.EventHandler(this.buttonToggleControlPanel);
+            this.buttonToggleConrol.Click += new System.EventHandler(this.OnControlButtonClick);
             // 
             // buttonRefresh
             // 
@@ -133,7 +145,7 @@
             this.buttonRefresh.Size = new System.Drawing.Size(32, 32);
             this.buttonRefresh.TabIndex = 4;
             this.buttonRefresh.UseVisualStyleBackColor = true;
-            this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
+            this.buttonRefresh.Click += new System.EventHandler(this.OnRefreshButtonClick);
             // 
             // buttonSwitch
             // 
@@ -148,18 +160,7 @@
             this.buttonSwitch.Size = new System.Drawing.Size(32, 32);
             this.buttonSwitch.TabIndex = 0;
             this.buttonSwitch.UseVisualStyleBackColor = true;
-            this.buttonSwitch.Click += new System.EventHandler(this.buttonToggleTransparency);
-            // 
-            // listOfMusicTracks
-            // 
-            this.listOfMusicTracks.BackColor = System.Drawing.Color.Black;
-            this.listOfMusicTracks.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.listOfMusicTracks.ForeColor = System.Drawing.SystemColors.Window;
-            this.listOfMusicTracks.Location = new System.Drawing.Point(7, 29);
-            this.listOfMusicTracks.Multiline = true;
-            this.listOfMusicTracks.Name = "listOfMusicTracks";
-            this.listOfMusicTracks.Size = new System.Drawing.Size(290, 341);
-            this.listOfMusicTracks.TabIndex = 3;
+            this.buttonSwitch.Click += new System.EventHandler(this.OnTransparencyButtonClick);
             // 
             // GlamWindow
             // 

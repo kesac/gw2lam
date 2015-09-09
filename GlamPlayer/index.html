@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>Youtube IFrame</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+  </head>
+  <body style="margin: 0; padding: 0; background: black">
+    <div id="player"></div>
+
+    <script>
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          // videoId: 'M7lc1UVf-VE',
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+
+      function onPlayerReady(event) {
+        window.external.InitializeMapChangeListener();
+      }
+      
+      
+      function onPlayerStateChange(event) {
+        
+      }
+
+      function play(id){
+        player.loadVideoById(id);
+        player.playVideo();
+      }
+
+      function stop() {
+        player.stopVideo();
+      }
+
+    </script>
+  </body>
+</html>

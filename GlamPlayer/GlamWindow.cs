@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-
+using System.IO;
 using Turtlesort.Glam.Core;
 
 namespace GlamPlayer
@@ -18,9 +18,7 @@ namespace GlamPlayer
     [ComVisibleAttribute(true)]
     public partial class GlamWindow : Form
     {
-
-        private readonly string MusicPage = "https://www.youtube.com/v/{0}?autoplay=1&loop=1&autohide=1&playlist={1}";
-        private readonly string EmptyPage = "<html><head><body style=\"font-family: courier; background-color: black; color: white\">No music available or no positional updates received from GW2.</body></html>";
+        private readonly string VideoPlayerLocation = "http://turtlesort.com/glam/";
         private readonly uint UnknownMap = 0;
         private readonly int ControlPanelWidth = 300; // in pixels
 
@@ -37,21 +35,20 @@ namespace GlamPlayer
             this.TopMost = true;
             this.panelControl.Width = ControlPanelWidth;
 
-            this.browserPanel.DocumentText = EmptyPage;
+
             this.browserPanel.ObjectForScripting = this;
 
-            /*
-            using (StreamReader reader = new StreamReader("YoutubeIFrame.html"))
-            {
-                this.browserPanel.DocumentText = reader.ReadToEnd();
-            }/**/
+            // We're using the YT IFrame API, but the event callbacks
+            // will not work if loading from a local page because of browser security settings.
+            // It's easier to load an existing template page off the web.
+            this.browserPanel.Navigate(VideoPlayerLocation);
 
             this.CurrentMapId = UnknownMap;
 
             this.Core = new GlamCore();
             this.Core.Load();
 
-            this.InitializeMapChangeListener();
+            //this.InitializeMapChangeListener();
             this.FormClosing += OnWindowClosing;
 
             this.TitleHeight = this.PointToScreen(Point.Empty).Y - this.Top;  // http://stackoverflow.com/questions/18429425/c-sharp-absolute-position-of-control-on-screen
@@ -59,45 +56,33 @@ namespace GlamPlayer
 
         }
 
+        // This is called by the YT IFrame after it is done loading...
         public void InitializeMapChangeListener()
         {
             this.Listener = new MapChangeListener();
             this.Listener.OnMapChange += OnMapChange;
             this.Listener.OnUpdateStop += OnMapUpdateStop;
             this.Listener.Start();
+        }
 
+        private void ThreadAwareInvocation(Action action)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(action));
+            }
+            else
+            {
+                action();
+            }
         }
 
         private void SetWindowTitle(string title)
         {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new MethodInvoker(delegate { this.Text = title; }));
-            }
-            else
-            {
-                this.Text = title;
-            }
+            this.ThreadAwareInvocation(delegate { this.Text = title; });
         }
 
-        private void OnMapUpdateStop(object sender, MapChangeEventArgs e)
-        {
-            this.SetWindowTitle("Currently in unknown location");
-            this.CurrentMapId = UnknownMap;
-        }
-
-        private void OnWindowClosing(object sender, FormClosingEventArgs e)
-        {
-            this.Core.SaveTrackData();
-
-            if (this.Listener != null) { 
-                this.Listener.CleanUpLogFiles();
-                this.Listener.Stop();
-            }
-
-        }
-
-        private void ReloadPlaylist()
+        private void PlayMapMusic()
         {
             List<MusicTrack> tracks = this.Core.GetMapMusic(this.CurrentMapId);
             if (tracks.Count > 0)
@@ -118,24 +103,48 @@ namespace GlamPlayer
                     playlist.AppendLine(tracks[0].Id);
                 }
 
-                this.browserPanel.Navigate(string.Format(MusicPage, tracks[0].Id, playlist.ToString()));
+                //this.browserPanel.Navigate(string.Format(MusicPage, tracks[0].Id, playlist.ToString()));
+                this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("play", new object[] { tracks[0].Id }); });
 
             }
             else
             {
-                this.browserPanel.DocumentText = EmptyPage;
+                this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("stop"); });
             }
         }
+
+        private void RefreshMusicTrackList()
+        {
+            List<MusicTrack> tracks = this.Core.GetMapMusic(this.CurrentMapId);
+
+            StringBuilder list = new StringBuilder();
+
+            foreach (MusicTrack track in tracks)
+            {
+                list.AppendLine("\"" + track.Title + "\"");
+            }
+
+            this.ThreadAwareInvocation(delegate { this.listOfMusicTracks.Text = list.ToString(); });
+        }
+
 
         private void OnMapChange(object sender, MapChangeEventArgs e)
         {
             this.CurrentMapId = e.MapID;
             this.SetWindowTitle(this.Core.GetMapName(this.CurrentMapId));
-            this.ReloadPlaylist();
+            this.PlayMapMusic();
             this.RefreshMusicTrackList();
         }
 
-        private void buttonAdd_Click(object sender, EventArgs e)
+        private void OnMapUpdateStop(object sender, MapChangeEventArgs e)
+        {
+            this.SetWindowTitle("Currently in unknown location");
+            this.CurrentMapId = UnknownMap;
+        }
+
+
+
+        private void OnAddButtonClick(object sender, EventArgs e)
         {
             string path = this.textMusicPath.Text;
 
@@ -163,7 +172,7 @@ namespace GlamPlayer
             this.RefreshMusicTrackList();
         }
 
-        private void buttonToggleTransparency(object sender, EventArgs e)
+        private void OnTransparencyButtonClick(object sender, EventArgs e)
         {
             if (this.FormBorderStyle != System.Windows.Forms.FormBorderStyle.None)
             {
@@ -187,7 +196,7 @@ namespace GlamPlayer
             }
         }
 
-        private void buttonToggleControlPanel(object sender, EventArgs e)
+        private void OnControlButtonClick(object sender, EventArgs e)
         {
             if (this.panelControl.Visible)
             {
@@ -201,29 +210,25 @@ namespace GlamPlayer
             }
         }
 
-        private void buttonRefresh_Click(object sender, EventArgs e)
+        private void OnRefreshButtonClick(object sender, EventArgs e)
         {
-            this.ReloadPlaylist();
+            this.PlayMapMusic();
         }
 
-        private void RefreshMusicTrackList()
+
+        private void OnBrowserPanelLoadingComplete(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            List<MusicTrack> tracks = this.Core.GetMapMusic(this.CurrentMapId);
+            // InitializeMapChangeListener();
+        }
 
-            StringBuilder list = new StringBuilder();
+        private void OnWindowClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Core.SaveTrackData();
 
-            foreach (MusicTrack track in tracks)
+            if (this.Listener != null) // if the html page's iframe never loaded, this will be null
             {
-                list.AppendLine("\"" + track.Title + "\"");
-            }
-
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new MethodInvoker(delegate { this.listOfMusicTracks.Text = list.ToString(); }));
-            }
-            else
-            {
-                this.listOfMusicTracks.Text = list.ToString();
+                this.Listener.CleanUpLogFiles();
+                this.Listener.Stop();
             }
 
         }

@@ -97,9 +97,9 @@
     <None Include="Mimic.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="YoutubeIFrame.html">
+    <None Include="index.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
