@@ -34,8 +34,7 @@ namespace GlamPlayer
             InitializeComponent();
             this.TopMost = true;
             this.panelControl.Width = ControlPanelWidth;
-
-
+            
             this.browserPanel.ObjectForScripting = this;
 
             // We're using the YT IFrame API, but the event callbacks
@@ -50,13 +49,20 @@ namespace GlamPlayer
 
             //this.InitializeMapChangeListener();
             this.FormClosing += OnWindowClosing;
+            this.Resize += OnWindowResize;
 
             this.TitleHeight = this.PointToScreen(Point.Empty).Y - this.Top;  // http://stackoverflow.com/questions/18429425/c-sharp-absolute-position-of-control-on-screen
             this.BorderWidth = this.PointToScreen(Point.Empty).X - this.Left;
 
         }
 
-        // This is called by the YT IFrame after it is done loading...
+        // Ensures the IFrame expands to fit its panel
+        private void ResizeIFrame(){
+            Size size = this.browserPanel.Size;
+            this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("setIFrameSize", new object[] { size.Width, size.Height }); });
+        }
+
+        // This is a public function because it called by the YT IFrame after it is done loading
         public void InitializeMapChangeListener()
         {
             this.Listener = new MapChangeListener();
@@ -140,6 +146,7 @@ namespace GlamPlayer
         {
             this.SetWindowTitle("Currently in unknown location");
             this.CurrentMapId = UnknownMap;
+            this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("fadeStop"); });
         }
 
 
@@ -219,7 +226,14 @@ namespace GlamPlayer
         private void OnBrowserPanelLoadingComplete(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             // InitializeMapChangeListener();
+            this.ResizeIFrame();
         }
+
+        private void OnWindowResize(object sender, EventArgs e)
+        {
+            this.ResizeIFrame();
+        }
+
 
         private void OnWindowClosing(object sender, FormClosingEventArgs e)
         {

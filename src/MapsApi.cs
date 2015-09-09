@@ -49,7 +49,7 @@ namespace Turtlesort.Glam.Core
                         maps[m.Id] = m;
                     }
                 }
-                System.Console.WriteLine("Local Cache Loaded! (" + maps.Count + " elements)");
+                //System.Console.WriteLine("Local Cache Loaded! (" + maps.Count + " elements)");
             }
             else
             {

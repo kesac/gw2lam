@@ -35,9 +35,34 @@
         
       }
 
+      function setIFrameSize(width, height){
+        player.setSize(width, height);
+      }
+
       function play(id){
+        player.setVolume(100);
         player.loadVideoById(id);
         player.playVideo();
+      }
+
+      function fadeStop(){
+        var interval = setInterval(function(){
+          var volume = player.getVolume();
+          if(volume == 0){
+            clearInterval(interval);
+            player.stopVideo();
+          }
+          else{
+            volume -= 5;
+            
+            if(volume < 0){
+              volume = 0;
+            }
+            
+            player.setVolume(volume);
+              
+          }
+        },100);      
       }
 
       function stop() {

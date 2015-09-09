@@ -79,6 +79,7 @@
             this.listOfMusicTracks.BackColor = System.Drawing.Color.Black;
             this.listOfMusicTracks.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.listOfMusicTracks.ForeColor = System.Drawing.SystemColors.Window;
+            this.listOfMusicTracks.HideSelection = false;
             this.listOfMusicTracks.Location = new System.Drawing.Point(7, 29);
             this.listOfMusicTracks.Multiline = true;
             this.listOfMusicTracks.Name = "listOfMusicTracks";
