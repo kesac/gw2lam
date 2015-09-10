@@ -41,6 +41,11 @@ namespace GlamPlayer
             this.CallJavascript("setSearchPlaylist", searchTerms);
         }
 
+        public string getCurrentVideoUrl()
+        {
+            return this.CallJavascript("getCurrentVideoUrl").ToString();
+        }
+
         public void StartPlayback()
         {
             if (this.VolumeFadeEnabled)
@@ -103,16 +108,17 @@ namespace GlamPlayer
             this.CallJavascript("fadePause");
         }
 
-        private void CallJavascript(string functionName, params object[] args)
+        private object CallJavascript(string functionName, params object[] args)
         {
+            object returnValue = null;
             Action action = delegate
             {
                 if (args.Length > 0) { 
-                    this.Document.InvokeScript(functionName, args);
+                    returnValue = this.Document.InvokeScript(functionName, args);
                 }
                 else
                 {
-                    this.Document.InvokeScript(functionName);
+                    returnValue = this.Document.InvokeScript(functionName);
                 }
             };
 
@@ -124,6 +130,9 @@ namespace GlamPlayer
             {
                 action();
             }
+
+            return returnValue;
+
         }
 
     }

@@ -107,22 +107,30 @@ namespace GlamPlayer
                 this.GlamFrame.SetPlaylist(tracks);
                 this.GlamFrame.StartPlayback();
             }
-            else if (this.textMusicPath.Text != string.Empty)
+            else if (this.textSearchField.Text != string.Empty)
             {
-               this.GlamFrame.setSearchPlaylist(this.textMusicPath.Text);
+                this.GlamFrame.setSearchPlaylist(this.textSearchField.Text);
                 this.GlamFrame.StartPlayback();
             }
         }
 
         private void RefreshMusicTrackList()
         {
+
+            if (this.CurrentMapId == this.UnknownMap)
+            {
+                return;
+            }
+
             List<MusicTrack> tracks = this.Core.GetMapMusic(this.CurrentMapId);
 
             StringBuilder list = new StringBuilder();
 
+            list.AppendLine("Playlist for " + this.Core.GetMapName(this.CurrentMapId));
+
             foreach (MusicTrack track in tracks)
             {
-                list.AppendLine("\"" + track.Title + "\"");
+                list.AppendLine("+" + track.Title);
             }
 
             this.ThreadAwareInvocation(delegate { this.listOfMusicTracks.Text = list.ToString(); });
@@ -175,28 +183,40 @@ namespace GlamPlayer
             System.Console.WriteLine("OnMapUpdateStop:\t" + e.MapID + "\t" + DateTime.Now);
         }
 
+        private void AddTrack(string path)
+        {
+
+            if(!Regex.IsMatch(path,"^https://www\\.youtube\\.com/watch\\?v=(.+)$")){
+                MessageBox.Show("Must be in the format https://www.youtube.com/watch?v=<id>");
+                return;
+            }
+
+            WebClient client = new WebClient();
+            string rawData = client.DownloadString(path);
+
+            System.IO.File.WriteAllText("test.txt", rawData);
+
+            MatchCollection matches = Regex.Matches(rawData, "<meta name=\"title\" content=(.*?)>");
+            string title = matches[0].Groups[1].Value;
+            title = title.Replace("\"", "");
+
+            if (title == null)
+            {
+                title = "Unknown";
+            }
+
+            MusicTrack track = new MusicTrack(this.CurrentMapId, path, title);
+
+            this.Core.AddMapMusic(track);
+        }
+
         private void OnAddButtonClick(object sender, EventArgs e)
         {
             string path = this.textMusicPath.Text;
 
             if (this.CurrentMapId != UnknownMap)
             {
-                WebClient client = new WebClient();
-                string rawData = client.DownloadString(path);
-
-                System.IO.File.WriteAllText("test.txt", rawData);
-
-                MatchCollection matches = Regex.Matches(rawData, "<meta name=\"title\" content=(.*?)>");
-                string title = matches[0].Groups[1].Value;
-
-                if (title == null)
-                {
-                    title = "Unknown";
-                }
-
-                MusicTrack track = new MusicTrack(this.CurrentMapId, path, title);
-
-                this.Core.AddMapMusic(track);
+                this.AddTrack(path);
             }
 
             this.textMusicPath.Clear();
@@ -246,6 +266,12 @@ namespace GlamPlayer
             this.LoadMapMusic();
         }
 
+        private void OnAddTrackButtonClick(object sender, EventArgs e)
+        {
+            string url =  this.GlamFrame.getCurrentVideoUrl();
+            url = url.Replace("feature=player_embedded&","");
+            this.textMusicPath.Text = url;
+        }
 
         private void OnBrowserPanelLoadingComplete(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
@@ -273,6 +299,7 @@ namespace GlamPlayer
             System.Environment.Exit(1);
 
         }
+
 
     }
 }
