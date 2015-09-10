@@ -107,6 +107,11 @@ namespace GlamPlayer
                 this.GlamFrame.SetPlaylist(tracks);
                 this.GlamFrame.StartPlayback();
             }
+            else if (this.textMusicPath.Text != string.Empty)
+            {
+               this.GlamFrame.setSearchPlaylist(this.textMusicPath.Text);
+                this.GlamFrame.StartPlayback();
+            }
         }
 
         private void RefreshMusicTrackList()

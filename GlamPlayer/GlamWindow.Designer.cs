@@ -47,7 +47,7 @@
             this.textMusicPath.BackColor = System.Drawing.Color.Gray;
             this.textMusicPath.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textMusicPath.ForeColor = System.Drawing.Color.Black;
-            this.textMusicPath.Location = new System.Drawing.Point(6, 9);
+            this.textMusicPath.Location = new System.Drawing.Point(6, 22);
             this.textMusicPath.Name = "textMusicPath";
             this.textMusicPath.Size = new System.Drawing.Size(238, 13);
             this.textMusicPath.TabIndex = 1;
@@ -55,7 +55,7 @@
             // 
             // buttonAdd
             // 
-            this.buttonAdd.Location = new System.Drawing.Point(250, 3);
+            this.buttonAdd.Location = new System.Drawing.Point(250, 16);
             this.buttonAdd.Name = "buttonAdd";
             this.buttonAdd.Size = new System.Drawing.Size(47, 24);
             this.buttonAdd.TabIndex = 2;
@@ -80,10 +80,10 @@
             this.listOfMusicTracks.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.listOfMusicTracks.ForeColor = System.Drawing.SystemColors.Window;
             this.listOfMusicTracks.HideSelection = false;
-            this.listOfMusicTracks.Location = new System.Drawing.Point(7, 29);
+            this.listOfMusicTracks.Location = new System.Drawing.Point(7, 79);
             this.listOfMusicTracks.Multiline = true;
             this.listOfMusicTracks.Name = "listOfMusicTracks";
-            this.listOfMusicTracks.Size = new System.Drawing.Size(290, 119);
+            this.listOfMusicTracks.Size = new System.Drawing.Size(290, 69);
             this.listOfMusicTracks.TabIndex = 3;
             // 
             // GlamFrame

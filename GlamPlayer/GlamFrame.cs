@@ -36,6 +36,11 @@ namespace GlamPlayer
             this.CallJavascript("setPlaylist", ids.ToString());
         }
 
+        public void setSearchPlaylist(string searchTerms)
+        {
+            this.CallJavascript("setSearchPlaylist", searchTerms);
+        }
+
         public void StartPlayback()
         {
             if (this.VolumeFadeEnabled)

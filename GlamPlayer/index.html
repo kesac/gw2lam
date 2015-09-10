@@ -18,6 +18,10 @@
         player = new YT.Player('player', {
           height: '390',
           width: '640',
+          playerVars : {
+            enablejsapi: '1',
+            origin: 'http://turtlesort.com/'
+          },
           events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
@@ -46,6 +50,14 @@
       function setPlaylist(list){
         var ids = list.split(",");
         player.cuePlaylist(ids);
+        isShuffled = false;
+      }
+
+      function setSearchPlaylist(searchTerms){
+        player.cuePlaylist({
+          listType : 'search',
+          list : searchTerms
+        });
         isShuffled = false;
       }
 
@@ -109,7 +121,7 @@
 
             if(volume == 0){
               clearInterval(fadeInterval);
-              player.stopVideo();
+              player.pauseVideo();
             }
             else{
               volume -= 5;
