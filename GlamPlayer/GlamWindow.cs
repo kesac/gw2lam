@@ -26,8 +26,7 @@ namespace GlamPlayer
         private MapChangeListener Listener;
 
         private uint CurrentMapId;
-        private List<MusicTrack> CurrentMapMusic;
-        private int CurrentMusicTrackIndex;
+
 
         private int TitleHeight;
         private int BorderWidth;
@@ -41,6 +40,7 @@ namespace GlamPlayer
             this.TopMost = true;
 
             this.GlamFrame.Initialize(VideoPlayerLocation);
+            this.GlamFrame.VolumeFadeEnabled = true;
 
             this.panelControl.Width = ControlPanelWidth;
             this.Width -= ControlPanelWidth;
@@ -58,10 +58,11 @@ namespace GlamPlayer
             this.BorderWidth = this.PointToScreen(Point.Empty).X - this.Left;
 
             this.timer = new System.Timers.Timer();
-            this.timer.Interval = 500;
+            this.timer.Interval = 1000;
             this.timer.Elapsed += DelayedOnMapUpdateStart;
 
         }
+
 
         // Ensures the IFrame expands to fit its panel
         private void ResizeGlamFrame(){
@@ -96,24 +97,15 @@ namespace GlamPlayer
             this.ThreadAwareInvocation(delegate { this.Text = title; });
         }
 
-        private void PlayMapMusic()
+        private void LoadMapMusic()
         {
-            this.CurrentMapMusic = new List<MusicTrack>();
+            List<MusicTrack> tracks = new List<MusicTrack>();
+            tracks.AddRange(this.Core.GetMapMusic(this.CurrentMapId));
 
-            this.CurrentMapMusic.AddRange(this.Core.GetMapMusic(this.CurrentMapId));
-
-            if (CurrentMapMusic.Count > 0)
+            if (tracks.Count > 0)
             {
-                this.CurrentMusicTrackIndex = 0;
-
-                string musicId = this.CurrentMapMusic[this.CurrentMusicTrackIndex].Id;
-
-                this.GlamFrame.FadeInPlay(musicId);
-                System.Console.WriteLine("PlayMapMusic:\tcalled fadeStart on " + musicId + "\t" + DateTime.Now);
-            }
-            else
-            {
-                System.Console.WriteLine("PlayMapMusic:\tThis map has no tracks, did not call fadeStart\t" + DateTime.Now);
+                this.GlamFrame.SetMusicTracks(tracks);
+                this.GlamFrame.StartPlayback();
             }
         }
 
@@ -150,20 +142,30 @@ namespace GlamPlayer
 
         private void DelayedOnMapUpdateStart(object sender, EventArgs e)
         {
-            this.CurrentMapId = this.Listener.GetCurrentMap();
-            this.SetWindowTitle(this.Core.GetMapName(this.CurrentMapId));
-            this.PlayMapMusic();
-            this.RefreshMusicTrackList();
             timer.Stop();
+
+            bool mapChanged = this.CurrentMapId != this.Listener.GetCurrentMap();
+            this.CurrentMapId = this.Listener.GetCurrentMap();
+
+            this.SetWindowTitle(this.Core.GetMapName(this.CurrentMapId));
+
+            if(mapChanged){
+                this.LoadMapMusic();
+                this.RefreshMusicTrackList();
+            }
+            else
+            {
+                this.GlamFrame.ResumePlayback();
+            }
 
             System.Console.WriteLine("Delayed OnMapUpdateStart:\t" + this.CurrentMapId + "\t" + DateTime.Now);
         }
 
         private void OnMapUpdateStop(object sender, MapChangeEventArgs e)
         {
-            this.CurrentMapId = UnknownMap;
+            //this.CurrentMapId = UnknownMap;
             this.SetWindowTitle("Currently in unknown location");
-            this.GlamFrame.FadeOutStop();
+            this.GlamFrame.StopPlayback();
 
             System.Console.WriteLine("OnMapUpdateStop:\t" + e.MapID + "\t" + DateTime.Now);
         }
@@ -236,7 +238,7 @@ namespace GlamPlayer
 
         private void OnRefreshButtonClick(object sender, EventArgs e)
         {
-            this.PlayMapMusic();
+            this.LoadMapMusic();
         }
 
 

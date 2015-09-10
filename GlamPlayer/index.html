@@ -30,7 +30,7 @@
       }
       
       function onPlayerStateChange(event) {
-        
+        window.external.OnStateChange(event.data);
       }
 
       function setFrameSize(width, height){
@@ -43,7 +43,10 @@
 
       function start(id){
 
-        if(lastPlayedId != id){
+        if(typeof id === 'undefined'){
+          player.playVideo()
+        }
+        else if(lastPlayedId != id){
           lastPlayedId = id;
           player.loadVideoById(id);
         }
