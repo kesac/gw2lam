@@ -72,6 +72,16 @@ namespace Turtlesort.Glam.Core
                     }
                 }
 
+                if (mapID != PlayerData.MapId)
+                {
+                    mapID = this.PlayerData.MapId;
+                    if (this.OnMapChange != null)
+                    {
+                        MapChangeEventArgs e = new MapChangeEventArgs(mapID, tick);
+                        this.OnMapChange(this, e);
+                    }
+                }
+
                 if(!incomingUpdates)
                 {
                     if (tick != PlayerData.Tick)
@@ -82,16 +92,6 @@ namespace Turtlesort.Glam.Core
                             MapChangeEventArgs e = new MapChangeEventArgs(mapID, tick);
                             this.OnUpdateStart(this, e);
                         }
-                    }
-                }
-
-                if (mapID != PlayerData.MapId)
-                {
-                    mapID = this.PlayerData.MapId;
-                    if (this.OnMapChange != null)
-                    {
-                        MapChangeEventArgs e = new MapChangeEventArgs(mapID, tick);
-                        this.OnMapChange(this, e);
                     }
                 }
 

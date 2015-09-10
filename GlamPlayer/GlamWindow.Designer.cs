@@ -69,9 +69,9 @@
             this.panelControl.Controls.Add(this.textMusicPath);
             this.panelControl.Controls.Add(this.buttonAdd);
             this.panelControl.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panelControl.Location = new System.Drawing.Point(415, 0);
+            this.panelControl.Location = new System.Drawing.Point(241, 0);
             this.panelControl.Name = "panelControl";
-            this.panelControl.Size = new System.Drawing.Size(300, 373);
+            this.panelControl.Size = new System.Drawing.Size(300, 151);
             this.panelControl.TabIndex = 6;
             // 
             // listOfMusicTracks
@@ -93,7 +93,7 @@
             this.browserPanel.MinimumSize = new System.Drawing.Size(20, 20);
             this.browserPanel.Name = "browserPanel";
             this.browserPanel.ScrollBarsEnabled = false;
-            this.browserPanel.Size = new System.Drawing.Size(415, 373);
+            this.browserPanel.Size = new System.Drawing.Size(241, 151);
             this.browserPanel.TabIndex = 5;
             this.browserPanel.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.OnBrowserPanelLoadingComplete);
             // 
@@ -102,10 +102,10 @@
             this.panel1.AutoSize = true;
             this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 373);
+            this.panel1.Location = new System.Drawing.Point(0, 151);
             this.panel1.MaximumSize = new System.Drawing.Size(418, 35);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(415, 0);
+            this.panel1.Size = new System.Drawing.Size(241, 0);
             this.panel1.TabIndex = 7;
             // 
             // panelPlayer
@@ -119,7 +119,7 @@
             this.panelPlayer.Location = new System.Drawing.Point(0, 0);
             this.panelPlayer.MaximumSize = new System.Drawing.Size(1024, 0);
             this.panelPlayer.Name = "panelPlayer";
-            this.panelPlayer.Size = new System.Drawing.Size(415, 373);
+            this.panelPlayer.Size = new System.Drawing.Size(241, 151);
             this.panelPlayer.TabIndex = 7;
             // 
             // buttonToggleConrol
@@ -128,7 +128,7 @@
             this.buttonToggleConrol.BackgroundImage = global::GlamPlayer.Properties.Resources.Universal_Multi_Tool;
             this.buttonToggleConrol.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.buttonToggleConrol.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonToggleConrol.Location = new System.Drawing.Point(380, 3);
+            this.buttonToggleConrol.Location = new System.Drawing.Point(206, 3);
             this.buttonToggleConrol.Name = "buttonToggleConrol";
             this.buttonToggleConrol.Size = new System.Drawing.Size(32, 32);
             this.buttonToggleConrol.TabIndex = 6;
@@ -141,7 +141,7 @@
             this.buttonRefresh.BackgroundImage = global::GlamPlayer.Properties.Resources.Mimic;
             this.buttonRefresh.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.buttonRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonRefresh.Location = new System.Drawing.Point(380, 79);
+            this.buttonRefresh.Location = new System.Drawing.Point(206, 79);
             this.buttonRefresh.Name = "buttonRefresh";
             this.buttonRefresh.Size = new System.Drawing.Size(32, 32);
             this.buttonRefresh.TabIndex = 4;
@@ -156,7 +156,7 @@
             this.buttonSwitch.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.buttonSwitch.FlatAppearance.BorderSize = 0;
             this.buttonSwitch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonSwitch.Location = new System.Drawing.Point(380, 41);
+            this.buttonSwitch.Location = new System.Drawing.Point(206, 41);
             this.buttonSwitch.Name = "buttonSwitch";
             this.buttonSwitch.Size = new System.Drawing.Size(32, 32);
             this.buttonSwitch.TabIndex = 0;
@@ -168,7 +168,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(715, 373);
+            this.ClientSize = new System.Drawing.Size(541, 151);
             this.Controls.Add(this.panelPlayer);
             this.Controls.Add(this.panelControl);
             this.Name = "GlamWindow";

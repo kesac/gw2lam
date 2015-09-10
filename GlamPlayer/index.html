@@ -8,6 +8,9 @@
     <div id="player"></div>
 
     <script>
+
+      var fadeInterval;
+
       var tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
       var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -39,34 +42,72 @@
         player.setSize(width, height);
       }
 
-      function play(id){
-        player.setVolume(100);
+      function start(id){
         player.loadVideoById(id);
-        player.playVideo();
+        player.setVolume(100);
+      }
+      
+      function stop() {
+        player.stopVideo();
+      }
+
+      var lastPlayedId;
+    
+      function fadeStart(id){
+
+          clearInterval(fadeInterval); // stop any existing fade in or fade out
+          player.setVolume(0);
+
+          if(lastPlayedId != id){
+            lastPlayedId = id;
+            player.loadVideoById(id);
+          }
+          else{ // If we're playing the same thing again, don't start from the beginning
+            player.playVideo()
+          }
+
+          fadeInterval = setInterval(function(){
+
+            var volume = player.getVolume();
+
+            if(volume == 100){
+              clearInterval(fadeInterval);
+            }
+            else{
+              volume += 5;
+              if(volume > 100){
+                volume = 100;
+              }
+            }
+
+            player.setVolume(volume);
+
+          },100);
       }
 
       function fadeStop(){
-        var interval = setInterval(function(){
-          var volume = player.getVolume();
-          if(volume == 0){
-            clearInterval(interval);
-            player.stopVideo();
-          }
-          else{
-            volume -= 5;
+         
+          clearInterval(fadeInterval);
+          fadeInterval = setInterval(function(){
+
+            var volume = player.getVolume();
+
+            if(volume == 0){
+              clearInterval(fadeInterval);
+              player.stopVideo();
+            }
+            else{
+              volume -= 5;
             
-            if(volume < 0){
-              volume = 0;
+              if(volume < 0){
+                volume = 0;
+              }
             }
             
             player.setVolume(volume);
-              
-          }
-        },100);      
-      }
+            
+          },50); 
 
-      function stop() {
-        player.stopVideo();
       }
 
     </script>

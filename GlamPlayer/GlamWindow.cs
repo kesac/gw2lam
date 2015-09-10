@@ -34,9 +34,10 @@ namespace GlamPlayer
             InitializeComponent();
             this.TopMost = true;
             this.panelControl.Width = ControlPanelWidth;
-            
-            this.browserPanel.ObjectForScripting = this;
 
+            this.browserPanel.ObjectForScripting = this;
+            this.panelControl.Hide();
+            this.Width -= ControlPanelWidth;
             // We're using the YT IFrame API, but the event callbacks
             // will not work if loading from a local page because of browser security settings.
             // It's easier to load an existing template page off the web.
@@ -68,8 +69,11 @@ namespace GlamPlayer
             this.Listener = new MapChangeListener();
             this.Listener.OnMapChange += OnMapChange;
             this.Listener.OnUpdateStop += OnMapUpdateStop;
+            this.Listener.OnUpdateStart += OnMapUpdateStart;
             this.Listener.Start();
         }
+
+
 
         private void ThreadAwareInvocation(Action action)
         {
@@ -110,12 +114,8 @@ namespace GlamPlayer
                 }
 
                 //this.browserPanel.Navigate(string.Format(MusicPage, tracks[0].Id, playlist.ToString()));
-                this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("play", new object[] { tracks[0].Id }); });
+                this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("fadeStart", new object[] { tracks[0].Id }); });
 
-            }
-            else
-            {
-                this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("stop"); });
             }
         }
 
@@ -136,20 +136,25 @@ namespace GlamPlayer
 
         private void OnMapChange(object sender, MapChangeEventArgs e)
         {
-            this.CurrentMapId = e.MapID;
-            this.SetWindowTitle(this.Core.GetMapName(this.CurrentMapId));
-            this.PlayMapMusic();
-            this.RefreshMusicTrackList();
+
         }
 
         private void OnMapUpdateStop(object sender, MapChangeEventArgs e)
         {
-            this.SetWindowTitle("Currently in unknown location");
             this.CurrentMapId = UnknownMap;
+            this.SetWindowTitle("Currently in unknown location");
             this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("fadeStop"); });
+            System.Console.WriteLine("OnMapUpdateStop: " + e.MapID);
         }
 
-
+        private void OnMapUpdateStart(object sender, MapChangeEventArgs e)
+        {
+            this.CurrentMapId = e.MapID;
+            this.SetWindowTitle(this.Core.GetMapName(this.CurrentMapId));
+            this.PlayMapMusic();
+            this.RefreshMusicTrackList();
+            System.Console.WriteLine("OnMapUpdateStart: " + e.MapID);
+        }
 
         private void OnAddButtonClick(object sender, EventArgs e)
         {
@@ -225,7 +230,6 @@ namespace GlamPlayer
 
         private void OnBrowserPanelLoadingComplete(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            // InitializeMapChangeListener();
             this.ResizeIFrame();
         }
 
@@ -241,8 +245,8 @@ namespace GlamPlayer
 
             if (this.Listener != null) // if the html page's iframe never loaded, this will be null
             {
-                this.Listener.CleanUpLogFiles();
                 this.Listener.Stop();
+                this.Listener.CleanUpLogFiles();
             }
 
         }
