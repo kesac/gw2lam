@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+
 using Turtlesort.Glam.Core;
 
 namespace GlamPlayer
@@ -12,11 +13,7 @@ namespace GlamPlayer
     [ComVisibleAttribute(true)]
     public class GlamFrame : WebBrowser
     {
-        private readonly string EndedState = "0";
-
-        private List<MusicTrack> Tracklist;
-        private int CurrentTrackIndex;
-        public bool VolumeFadeEnabled { get; set; }// if true, volume will fade out on calls to StopPlayback() or fade in on calls to StartPlayback(), ResumePlayback()
+        public bool VolumeFadeEnabled { get; set; } // if true, volume will fade out on calls to StopPlayback() or fade in on calls to StartPlayback(), ResumePlayback()
 
         public void Initialize(string videoPlayerLocation)
         {
@@ -25,117 +22,95 @@ namespace GlamPlayer
             this.VolumeFadeEnabled = false;
         }
 
-        public void SetMusicTracks(List<MusicTrack> tracks)
+        public void SetPlaylist(List<MusicTrack> tracks)
         {
-            this.Tracklist = tracks;
-            this.CurrentTrackIndex = 0;
+            StringBuilder ids = new StringBuilder();
+
+            foreach (MusicTrack track in tracks)
+            {
+                ids.Append(track.Id);
+                ids.Append(",");
+            }
+
+            ids.Remove(ids.Length - 1, 1);
+            this.CallJavascript("setPlaylist", ids.ToString());
         }
 
         public void StartPlayback()
         {
-            if (this.Tracklist.Count > 0)
-            {
-                this.CurrentTrackIndex = 0;
-                string trackId = this.Tracklist[this.CurrentTrackIndex].Id;
-
-                if (this.VolumeFadeEnabled)
-                {
-                    this.FadeInPlay(trackId);
-                }
-                else
-                {
-                    this.Play(trackId);
-                }
-            }
-        }
-
-        public void ResumePlayback()
-        {
-            if (this.Tracklist.Count > 0) { 
-                if (this.VolumeFadeEnabled)
-                {
-                    this.FadeInPlay();
-                }
-                else
-                {
-                    this.Play();
-                }
-            }
-        }
-
-        public void StopPlayback()
-        {
             if (this.VolumeFadeEnabled)
             {
-                this.FadeOutStop();
+                this.FadeInPlay();
             }
             else
             {
-                this.StopPlay();
+                this.Play();
+            }
+
+        }
+
+        public void PausePlayback()
+        {
+            if (this.VolumeFadeEnabled)
+            {
+                this.FadeOutPause();
+            }
+            else
+            {
+                this.Pause();
             }
         }
 
         public void SetFrameSize(int width, int height)
         {
-            this.ThreadAwareInvocation(delegate { this.Document.InvokeScript("setFrameSize", new object[] { width, height }); });
+            this.CallJavascript("setFrameSize", width, height);
         }
 
         public void OnStateChange(string state)
         {
-            if (state == EndedState)
-            {
-                if (this.Tracklist.Count == 1)
-                {
-                    string trackId = this.Tracklist[this.CurrentTrackIndex].Id;
-                    this.FadeInPlay(trackId); // ie. loop
-                }
-                else // move to the next track, we use modulus to move back to the first track if we reach the end of the tracklist
-                {
-                    this.CurrentTrackIndex = (this.CurrentTrackIndex + 1) % this.Tracklist.Count;
-
-                    string trackId = this.Tracklist[this.CurrentTrackIndex].Id;
-                    this.FadeInPlay(trackId);
-                }
-            }
+            this.Log("OnStateChange: " + state);
         }
 
 
-
-
+        public void Log(string message)
+        {
+            //MessageBox.Show(message);
+            System.Console.WriteLine(message + "\t" + DateTime.Now);
+        }
 
         private void Play()
         {
-            this.ThreadAwareInvocation(delegate { this.Document.InvokeScript("start"); });
-        }
-
-
-        private void Play(string id)
-        {
-            this.ThreadAwareInvocation(delegate { this.Document.InvokeScript("start", new object[] { id }); });
+            this.CallJavascript("start");
         }
 
         private void FadeInPlay()
         {
-            this.ThreadAwareInvocation(delegate { this.Document.InvokeScript("fadeStart"); });
+            this.CallJavascript("fadeStart");
         }
 
-        private void FadeInPlay(string id)
+        private void Pause()
         {
-            this.ThreadAwareInvocation(delegate { this.Document.InvokeScript("fadeStart", new object[] { id }); });
+            this.CallJavascript("pause");
         }
 
-        private void StopPlay()
+        private void FadeOutPause()
         {
-            this.ThreadAwareInvocation(delegate { this.Document.InvokeScript("stop"); });
+            this.CallJavascript("fadePause");
         }
 
-        private void FadeOutStop()
+        private void CallJavascript(string functionName, params object[] args)
         {
-            this.ThreadAwareInvocation(delegate { this.Document.InvokeScript("fadeStop"); });
-        }
+            Action action = delegate
+            {
+                if (args.Length > 0) { 
+                    this.Document.InvokeScript(functionName, args);
+                }
+                else
+                {
+                    this.Document.InvokeScript(functionName);
+                }
+            };
 
-        private void ThreadAwareInvocation(Action action)
-        {
             if (this.InvokeRequired)
             {
                 this.Invoke(new MethodInvoker(action));

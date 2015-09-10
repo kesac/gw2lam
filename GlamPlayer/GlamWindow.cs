@@ -104,7 +104,7 @@ namespace GlamPlayer
 
             if (tracks.Count > 0)
             {
-                this.GlamFrame.SetMusicTracks(tracks);
+                this.GlamFrame.SetPlaylist(tracks);
                 this.GlamFrame.StartPlayback();
             }
         }
@@ -136,13 +136,13 @@ namespace GlamPlayer
         // before retrieving the map id from the map change listener object directly.
         private void OnMapUpdateStart(object sender, MapChangeEventArgs e)
         {
-            timer.Start(); // Setup to call DelayedOnMapUpdateStart()
+            timer.Start(); // This is set up to call DelayedOnMapUpdateStart()
             System.Console.WriteLine("OnMapUpdateStart:\t" + e.MapID + "\t" + DateTime.Now);
         }
 
         private void DelayedOnMapUpdateStart(object sender, EventArgs e)
         {
-            timer.Stop();
+            timer.Stop(); // Prevents additional calls to this method and also resets the timer
 
             bool mapChanged = this.CurrentMapId != this.Listener.GetCurrentMap();
             this.CurrentMapId = this.Listener.GetCurrentMap();
@@ -155,7 +155,7 @@ namespace GlamPlayer
             }
             else
             {
-                this.GlamFrame.ResumePlayback();
+                this.GlamFrame.StartPlayback(); // ie. we resume playback since the tracklist stays the same
             }
 
             System.Console.WriteLine("Delayed OnMapUpdateStart:\t" + this.CurrentMapId + "\t" + DateTime.Now);
@@ -165,7 +165,7 @@ namespace GlamPlayer
         {
             //this.CurrentMapId = UnknownMap;
             this.SetWindowTitle("Currently in unknown location");
-            this.GlamFrame.StopPlayback();
+            this.GlamFrame.PausePlayback();
 
             System.Console.WriteLine("OnMapUpdateStop:\t" + e.MapID + "\t" + DateTime.Now);
         }

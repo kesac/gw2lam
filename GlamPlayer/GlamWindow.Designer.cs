@@ -86,15 +86,16 @@
             this.listOfMusicTracks.Size = new System.Drawing.Size(290, 119);
             this.listOfMusicTracks.TabIndex = 3;
             // 
-            // glamFrame
+            // GlamFrame
             // 
             this.GlamFrame.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GlamFrame.Location = new System.Drawing.Point(0, 0);
             this.GlamFrame.MinimumSize = new System.Drawing.Size(20, 20);
-            this.GlamFrame.Name = "glamFrame";
+            this.GlamFrame.Name = "GlamFrame";
             this.GlamFrame.ScrollBarsEnabled = false;
             this.GlamFrame.Size = new System.Drawing.Size(241, 151);
             this.GlamFrame.TabIndex = 5;
+            this.GlamFrame.VolumeFadeEnabled = false;
             this.GlamFrame.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.OnBrowserPanelLoadingComplete);
             // 
             // panel1
@@ -172,7 +173,7 @@
             this.Controls.Add(this.panelPlayer);
             this.Controls.Add(this.panelControl);
             this.Name = "GlamWindow";
-            this.Text = "Form1";
+            this.Text = "Glam Player";
             this.panelControl.ResumeLayout(false);
             this.panelControl.PerformLayout();
             this.panelPlayer.ResumeLayout(false);

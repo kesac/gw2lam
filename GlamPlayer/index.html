@@ -24,10 +24,11 @@
           }
         });
       }
-
+      
       function onPlayerReady(event) {
-        
+         
       }
+
       
       function onPlayerStateChange(event) {
         window.external.OnStateChange(event.data);
@@ -40,53 +41,66 @@
       var lastPlayedId;
       var fadeInterval;
       var volumeLimit = 100;
+      var isShuffled = false;
 
-      function start(id){
-
-        if(typeof id === 'undefined'){
-          player.playVideo()
-        }
-        else if(lastPlayedId != id){
-          lastPlayedId = id;
-          player.loadVideoById(id);
-        }
-        else{ // If we're playing the same thing again, don't bother reloading
-          player.playVideo()
-        }
-
+      function setPlaylist(list){
+        var ids = list.split(",");
+        player.cuePlaylist(ids);
+        isShuffled = false;
       }
 
-      function fadeStart(id){
+      function start(){
+        
+        player.playVideo();
+        
+        if(!isShuffled){
+          isShuffled = true;
+          player.setShuffle(true);
+          player.playVideoAt(0);
+        }
+ 
+        player.setLoop(true);        
+      }
 
-          clearInterval(fadeInterval); // stop any existing fade in or fade out
+      function fadeStart(){
 
-          start(id)
-          player.setVolume(0);
+        clearInterval(fadeInterval); // stop any existing fade in or fade out
 
-          fadeInterval = setInterval(function(){
+        player.playVideo();
 
-            var volume = player.getVolume();
+        if(!isShuffled){
+          isShuffled = true;
+          player.setShuffle(true);
+          player.playVideoAt(0); // if we don't call this, it will play the first video of the old, unshuffled order, not the new order
+        }
 
-            if(volume == volumeLimit){
-              clearInterval(fadeInterval);
+        player.setVolume(0);
+        player.setLoop(true); // only seems to work when called after playVideo()
+
+        fadeInterval = setInterval(function(){
+
+          var volume = player.getVolume();
+
+          if(volume == volumeLimit){
+            clearInterval(fadeInterval);
+          }
+          else{
+            volume += 5;
+            if(volume > volumeLimit){
+              volume = volumeLimit;
             }
-            else{
-              volume += 5;
-              if(volume > volumeLimit){
-                volume = volumeLimit;
-              }
-            }
+          }
 
-            player.setVolume(volume);
+          player.setVolume(volume);
 
-          },100);
+        },100);
       }
 
-      function stop() {
-        player.stopVideo();
+      function pause() {
+        player.pauseVideo();
       }
 
-      function fadeStop(){
+      function fadePause(){
          
           clearInterval(fadeInterval);
           fadeInterval = setInterval(function(){
