@@ -7,10 +7,7 @@
   <body style="margin: 0; padding: 0; background: black">
     <div id="player"></div>
 
-    <script>
-
-      var fadeInterval;
-
+    <script>   
       var tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
       var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -33,7 +30,6 @@
         window.external.InitializeMapChangeListener();
       }
       
-      
       function onPlayerStateChange(event) {
         
       }
@@ -42,47 +38,50 @@
         player.setSize(width, height);
       }
 
+      var lastPlayedId;
+      var fadeInterval;
+      var volumeLimit = 100;
+
       function start(id){
-        player.loadVideoById(id);
-        player.setVolume(100);
-      }
-      
-      function stop() {
-        player.stopVideo();
+
+        if(lastPlayedId != id){
+          lastPlayedId = id;
+          player.loadVideoById(id);
+        }
+        else{ // If we're playing the same thing again, don't bother reloading
+          player.playVideo()
+        }
+
       }
 
-      var lastPlayedId;
-    
       function fadeStart(id){
 
           clearInterval(fadeInterval); // stop any existing fade in or fade out
-          player.setVolume(0);
 
-          if(lastPlayedId != id){
-            lastPlayedId = id;
-            player.loadVideoById(id);
-          }
-          else{ // If we're playing the same thing again, don't start from the beginning
-            player.playVideo()
-          }
+          start(id)
+          player.setVolume(0);
 
           fadeInterval = setInterval(function(){
 
             var volume = player.getVolume();
 
-            if(volume == 100){
+            if(volume == volumeLimit){
               clearInterval(fadeInterval);
             }
             else{
               volume += 5;
-              if(volume > 100){
-                volume = 100;
+              if(volume > volumeLimit){
+                volume = volumeLimit;
               }
             }
 
             player.setVolume(volume);
 
           },100);
+      }
+
+      function stop() {
+        player.stopVideo();
       }
 
       function fadeStop(){

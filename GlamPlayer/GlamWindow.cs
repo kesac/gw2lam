@@ -29,9 +29,12 @@ namespace GlamPlayer
         private int TitleHeight;
         private int BorderWidth;
 
+        private System.Timers.Timer timer;
+
         public GlamWindow()
         {
             InitializeComponent();
+
             this.TopMost = true;
             this.panelControl.Width = ControlPanelWidth;
 
@@ -55,6 +58,10 @@ namespace GlamPlayer
             this.TitleHeight = this.PointToScreen(Point.Empty).Y - this.Top;  // http://stackoverflow.com/questions/18429425/c-sharp-absolute-position-of-control-on-screen
             this.BorderWidth = this.PointToScreen(Point.Empty).X - this.Left;
 
+            this.timer = new System.Timers.Timer();
+            this.timer.Interval = 500;
+            this.timer.Elapsed += DelayedOnMapUpdateStart;
+
         }
 
         // Ensures the IFrame expands to fit its panel
@@ -72,8 +79,6 @@ namespace GlamPlayer
             this.Listener.OnUpdateStart += OnMapUpdateStart;
             this.Listener.Start();
         }
-
-
 
         private void ThreadAwareInvocation(Action action)
         {
@@ -115,7 +120,11 @@ namespace GlamPlayer
 
                 //this.browserPanel.Navigate(string.Format(MusicPage, tracks[0].Id, playlist.ToString()));
                 this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("fadeStart", new object[] { tracks[0].Id }); });
-
+                System.Console.WriteLine("PlayMapMusic:\tcalled fadeStart on " + tracks[0].Id + "\t" + DateTime.Now);
+            }
+            else
+            {
+                System.Console.WriteLine("PlayMapMusic:\tThis map has no tracks, did not call fadeStart\t" + DateTime.Now);
             }
         }
 
@@ -133,10 +142,32 @@ namespace GlamPlayer
             this.ThreadAwareInvocation(delegate { this.listOfMusicTracks.Text = list.ToString(); });
         }
 
-
+        // This doesn't catch when the player uses a waypoint in the same map, so we rely
+        // on OnMapUpdateStart() instead.
         private void OnMapChange(object sender, MapChangeEventArgs e)
         {
+            System.Console.WriteLine("OnMapChange:\t" + e.MapID + "\t" + DateTime.Now);           
+        }
 
+        // Sometimes when this event is fired, the GW2 api does not provide the new
+        // map ID right away, making it look like the player stayed on the same map.
+        // Instead of updating the map music right away, we delay ourselves slightly
+        // before retrieving the map id from the map change listener object directly.
+        private void OnMapUpdateStart(object sender, MapChangeEventArgs e)
+        {
+            timer.Start(); // Setup to call DelayedOnMapUpdateStart()
+            System.Console.WriteLine("OnMapUpdateStart:\t" + e.MapID + "\t" + DateTime.Now);
+        }
+
+        private void DelayedOnMapUpdateStart(object sender, EventArgs e)
+        {
+            this.CurrentMapId = this.Listener.GetCurrentMap();
+            this.SetWindowTitle(this.Core.GetMapName(this.CurrentMapId));
+            this.PlayMapMusic();
+            this.RefreshMusicTrackList();
+            timer.Stop();
+
+            System.Console.WriteLine("Delayed OnMapUpdateStart:\t" + this.CurrentMapId + "\t" + DateTime.Now);
         }
 
         private void OnMapUpdateStop(object sender, MapChangeEventArgs e)
@@ -144,17 +175,9 @@ namespace GlamPlayer
             this.CurrentMapId = UnknownMap;
             this.SetWindowTitle("Currently in unknown location");
             this.ThreadAwareInvocation(delegate { this.browserPanel.Document.InvokeScript("fadeStop"); });
-            System.Console.WriteLine("OnMapUpdateStop: " + e.MapID);
+            System.Console.WriteLine("OnMapUpdateStop:\t" + e.MapID + "\t" + DateTime.Now);
         }
 
-        private void OnMapUpdateStart(object sender, MapChangeEventArgs e)
-        {
-            this.CurrentMapId = e.MapID;
-            this.SetWindowTitle(this.Core.GetMapName(this.CurrentMapId));
-            this.PlayMapMusic();
-            this.RefreshMusicTrackList();
-            System.Console.WriteLine("OnMapUpdateStart: " + e.MapID);
-        }
 
         private void OnAddButtonClick(object sender, EventArgs e)
         {

@@ -28,6 +28,11 @@ namespace Turtlesort.Glam.Core
         }
 
         public event MapChangeEventHandler OnUpdateStop;
+
+        /* OnUpdateStart is not a reliable way to detect when the player enters a new map as
+         * updates from GW2 can start without the map ID changing on map changes. Instead use
+         * OnMapChange.
+         */
         public event MapChangeEventHandler OnUpdateStart;
         public event MapChangeEventHandler OnMapChange;
 
@@ -37,6 +42,10 @@ namespace Turtlesort.Glam.Core
             this.PlayerData = Gw2PositionReaderApi.GetPlayerDataInstance();
         }
 
+        public uint GetCurrentMap()
+        {
+            return this.PlayerData.MapId;
+        }
 
         public void Start()
         {
