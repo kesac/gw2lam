@@ -20,7 +20,7 @@ namespace GlamPlayer
     {
         private readonly string VideoPlayerLocation = "http://turtlesort.com/glam/";
         private readonly uint UnknownMap = 0;
-        private readonly int ControlPanelWidth = 300; // in pixels
+        private readonly int ControlPanelHeight = 300; // in pixels
 
         private GlamCore Core;
         private MapChangeListener Listener;
@@ -42,8 +42,8 @@ namespace GlamPlayer
             this.GlamFrame.Initialize(VideoPlayerLocation);
             this.GlamFrame.VolumeFadeEnabled = true;
 
-            this.panelControl.Width = ControlPanelWidth;
-            this.Width -= ControlPanelWidth;
+            ControlPanelHeight = this.panelControl.Height;
+            this.Height -= ControlPanelHeight;
             this.panelControl.Hide();
 
             this.CurrentMapId = UnknownMap;
@@ -63,14 +63,7 @@ namespace GlamPlayer
 
         }
 
-
-        // Ensures the IFrame expands to fit its panel
-        private void ResizeGlamFrame(){
-            Size size = this.GlamFrame.Size;
-            this.GlamFrame.SetFrameSize(size.Width, size.Height);
-        }
-
-        // This is a public function because it called by the YT IFrame after it is done loading
+        // Called by glam frame when it is done loading its contents
         public void InitializeMapChangeListener()
         {
             this.Listener = new MapChangeListener();
@@ -97,7 +90,8 @@ namespace GlamPlayer
             this.ThreadAwareInvocation(delegate { this.Text = title; });
         }
 
-        private void LoadMapMusic()
+
+        private void RefreshMapMusic()
         {
             List<MusicTrack> tracks = new List<MusicTrack>();
             tracks.AddRange(this.Core.GetMapMusic(this.CurrentMapId));
@@ -106,34 +100,52 @@ namespace GlamPlayer
             {
                 this.GlamFrame.SetPlaylist(tracks);
                 this.GlamFrame.StartPlayback();
+                this.RefreshTracklistText();
             }
-            else if (this.textSearchField.Text != string.Empty)
+            else if (this.textboxSearchPlaylistField.Text != string.Empty && this.checkBoxAutoUseSearchTerms.Checked)
             {
-                this.GlamFrame.setSearchPlaylist(this.textSearchField.Text);
-                this.GlamFrame.StartPlayback();
+                this.LoadSearchPlaylistMusic();
+            }
+            else if (this.textboxPlaylistId.Text != string.Empty && this.checkBoxAutoUsePlaylistId.Checked)
+            {
+                // todo
             }
         }
 
-        private void RefreshMusicTrackList()
+        private void LoadSearchPlaylistMusic()
         {
+            this.GlamFrame.SetSearchPlaylist(this.textboxSearchPlaylistField.Text);
+            this.GlamFrame.StartPlayback();
+            this.RefreshTracklistText("Custom search", "Custom search terms: " + this.textboxSearchPlaylistField.Text);
+        }
 
-            if (this.CurrentMapId == this.UnknownMap)
+        // Refreshes the list of tracks in the control panel
+        // If no arguments are given, the current map's tracks are use to populate
+        // the list.
+        private void RefreshTracklistText()
+        {
+            if (this.CurrentMapId != this.UnknownMap)
             {
-                return;
+                string mapName = this.Core.GetMapName(this.CurrentMapId);
+                List<MusicTrack> tracks = this.Core.GetMapMusic(this.CurrentMapId);
+
+                StringBuilder list = new StringBuilder();
+
+                foreach (MusicTrack track in tracks)
+                {
+                    list.AppendLine("+" + track.Title);
+                }
+
+                this.RefreshTracklistText(mapName, list.ToString());    
             }
+        }
 
-            List<MusicTrack> tracks = this.Core.GetMapMusic(this.CurrentMapId);
-
-            StringBuilder list = new StringBuilder();
-
-            list.AppendLine("Playlist for " + this.Core.GetMapName(this.CurrentMapId));
-
-            foreach (MusicTrack track in tracks)
-            {
-                list.AppendLine("+" + track.Title);
-            }
-
-            this.ThreadAwareInvocation(delegate { this.listOfMusicTracks.Text = list.ToString(); });
+        private void RefreshTracklistText(string mapName, string contents)
+        {
+            this.ThreadAwareInvocation(delegate {
+                this.groupPanelDedicatedPlaylist.Text = mapName;
+                this.listOfMusicTracks.Text = contents; 
+            });
         }
 
         // This doesn't catch when the player uses a waypoint in the same map, so we rely
@@ -163,8 +175,7 @@ namespace GlamPlayer
             this.SetWindowTitle(this.Core.GetMapName(this.CurrentMapId));
 
             if(mapChanged){
-                this.LoadMapMusic();
-                this.RefreshMusicTrackList();
+                this.RefreshMapMusic();
             }
             else
             {
@@ -183,45 +194,98 @@ namespace GlamPlayer
             System.Console.WriteLine("OnMapUpdateStop:\t" + e.MapID + "\t" + DateTime.Now);
         }
 
-        private void AddTrack(string path)
+        private void OnAddNewTrackButtonClick(object sender, EventArgs e)
         {
+            string path = this.textboxTrackUrl.Text;
 
-            if(!Regex.IsMatch(path,"^https://www\\.youtube\\.com/watch\\?v=(.+)$")){
-                MessageBox.Show("Must be in the format https://www.youtube.com/watch?v=<id>");
-                return;
-            }
-
-            WebClient client = new WebClient();
-            string rawData = client.DownloadString(path);
-
-            System.IO.File.WriteAllText("test.txt", rawData);
-
-            MatchCollection matches = Regex.Matches(rawData, "<meta name=\"title\" content=(.*?)>");
-            string title = matches[0].Groups[1].Value;
-            title = title.Replace("\"", "");
-
-            if (title == null)
-            {
-                title = "Unknown";
-            }
-
-            MusicTrack track = new MusicTrack(this.CurrentMapId, path, title);
-
-            this.Core.AddMapMusic(track);
-        }
-
-        private void OnAddButtonClick(object sender, EventArgs e)
-        {
-            string path = this.textMusicPath.Text;
-
+            bool success = false;
             if (this.CurrentMapId != UnknownMap)
             {
-                this.AddTrack(path);
+                if (Regex.IsMatch(path, "^https://www\\.youtube\\.com/watch\\?v=(.+)$"))
+                {
+                    WebClient client = new WebClient();
+                    string rawData = client.DownloadString(path);
+
+                    System.IO.File.WriteAllText("test.txt", rawData);
+
+                    MatchCollection matches = Regex.Matches(rawData, "<meta name=\"title\" content=(.*?)>");
+                    string title = matches[0].Groups[1].Value;
+                    title = title.Replace("\"", "");
+
+                    if (title == null)
+                    {
+                        title = "Unknown";
+                    }
+
+                    success = this.Core.AddMapMusic(this.CurrentMapId, path, title);
+                }
             }
 
-            this.textMusicPath.Clear();
-            this.RefreshMusicTrackList();
+            this.textboxTrackUrl.Clear();
+
+            if (success)
+            {
+                this.RefreshTracklistText();
+            }
+            else
+            {
+                MessageBox.Show("Could not add " + path + ". A duplicate entry may already exist. Must also be in the format https://www.youtube.com/watch?v=<id>.");
+            }
         }
+
+
+        private void OnGetCurrentTrackUrlButtonClick(object sender, EventArgs e)
+        {
+            string url = this.GlamFrame.getCurrentVideoUrl();
+
+            if (url != null && url.Trim().Length > 0)
+            {
+                url = url.Replace("feature=player_embedded&", "");
+                this.textboxTrackUrl.Text = url;
+            }
+        }
+
+        private void OnRemoveCurrentTrackButtonClick(object sender, EventArgs e)
+        {
+            string url = this.GlamFrame.getCurrentVideoUrl();
+
+            if (url != null && url.Trim().Length > 0)
+            {
+                url = url.Replace("feature=player_embedded&", "");
+
+                // MusicTrack's Id property extracts the value from the url
+                MusicTrack track = new MusicTrack(UnknownMap, url, null);
+                string trackId = track.Id;
+                bool success = this.Core.RemoveMapMusic(this.CurrentMapId, trackId);
+
+                if (success) { 
+                    this.RefreshTracklistText();
+                }
+                else
+                {
+                    MessageBox.Show("Could not remove " + url + ". It did not exist in playlist.");
+                }
+            }
+        }
+
+
+        private void OnStartSearchPlaylistButtonClick(object sender, EventArgs e)
+        {
+            if (this.textboxSearchPlaylistField.Text != string.Empty)
+            {
+                this.LoadSearchPlaylistMusic();
+            }
+            else
+            {
+                MessageBox.Show("Enter at least one term in the search field.");
+            }
+        }
+
+        private void OnStartPlaylistByIdButtonClick(object sender, EventArgs e)
+        {
+
+        }
+
 
         private void OnTransparencyButtonClick(object sender, EventArgs e)
         {
@@ -252,25 +316,25 @@ namespace GlamPlayer
             if (this.panelControl.Visible)
             {
                 this.panelControl.Hide();
-                this.Width -= ControlPanelWidth;
+                this.Height -= ControlPanelHeight;
             }
             else
             {
                 this.panelControl.Show();
-                this.Width += ControlPanelWidth;
+                this.Height += ControlPanelHeight;
             }
         }
 
         private void OnRefreshButtonClick(object sender, EventArgs e)
         {
-            this.LoadMapMusic();
+            this.RefreshMapMusic();
         }
 
-        private void OnAddTrackButtonClick(object sender, EventArgs e)
+        // Ensures the IFrame expands to fit its panel
+        private void ResizeGlamFrame()
         {
-            string url =  this.GlamFrame.getCurrentVideoUrl();
-            url = url.Replace("feature=player_embedded&","");
-            this.textMusicPath.Text = url;
+            Size size = this.GlamFrame.Size;
+            this.GlamFrame.SetFrameSize(size.Width, size.Height);
         }
 
         private void OnBrowserPanelLoadingComplete(object sender, WebBrowserDocumentCompletedEventArgs e)
@@ -283,7 +347,6 @@ namespace GlamPlayer
         {
             this.ResizeGlamFrame();
         }
-
 
         private void OnWindowClosing(object sender, FormClosingEventArgs e)
         {

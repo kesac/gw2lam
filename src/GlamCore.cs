@@ -62,9 +62,52 @@ namespace Turtlesort.Glam.Core
             return this.Maps[mapId].Tracks;
         }
 
-        public void AddMapMusic(MusicTrack track)
+        public bool AddMapMusic(uint mapId, string path, string title)
         {
-            this.Maps[track.MapId].Tracks.Add(track);
+            bool success = false;
+            if (this.Maps.ContainsKey(mapId))
+            {
+                MusicTrack newTrack = new MusicTrack(mapId, path, title);
+                
+                List<MusicTrack> list = this.Maps[mapId].Tracks;
+                bool duplicate = false;
+
+                foreach (MusicTrack existingTrack in list)
+                {
+                    if (existingTrack.Id.Equals(newTrack.Id))
+                    {
+                        duplicate = true;
+                        break;
+                    }
+                }
+
+                if (!duplicate) { 
+                    this.Maps[mapId].Tracks.Add(newTrack);
+                    success = true;
+                }
+            }
+
+            return success;
+        }
+
+        public bool RemoveMapMusic(uint mapId, string trackId)
+        {
+            bool success = false;
+            if (this.Maps.ContainsKey(mapId))
+            {
+                List<MusicTrack> list = this.Maps[mapId].Tracks;
+
+                foreach (MusicTrack track in list)
+                {
+                    if (track.Id.Equals(trackId))
+                    {
+                        list.Remove(track);
+                        success = true;
+                        break;
+                    }
+                }
+            }
+            return success;
         }
 
         public void SaveTrackData()
