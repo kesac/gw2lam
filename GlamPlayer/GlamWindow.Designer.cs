@@ -32,7 +32,7 @@
             this.buttonAdd = new System.Windows.Forms.Button();
             this.panelControl = new System.Windows.Forms.Panel();
             this.listOfMusicTracks = new System.Windows.Forms.TextBox();
-            this.browserPanel = new System.Windows.Forms.WebBrowser();
+            this.GlamFrame = new GlamPlayer.GlamFrame();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panelPlayer = new System.Windows.Forms.Panel();
             this.buttonToggleConrol = new System.Windows.Forms.Button();
@@ -83,19 +83,19 @@
             this.listOfMusicTracks.Location = new System.Drawing.Point(7, 29);
             this.listOfMusicTracks.Multiline = true;
             this.listOfMusicTracks.Name = "listOfMusicTracks";
-            this.listOfMusicTracks.Size = new System.Drawing.Size(290, 341);
+            this.listOfMusicTracks.Size = new System.Drawing.Size(290, 119);
             this.listOfMusicTracks.TabIndex = 3;
             // 
-            // browserPanel
+            // glamFrame
             // 
-            this.browserPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.browserPanel.Location = new System.Drawing.Point(0, 0);
-            this.browserPanel.MinimumSize = new System.Drawing.Size(20, 20);
-            this.browserPanel.Name = "browserPanel";
-            this.browserPanel.ScrollBarsEnabled = false;
-            this.browserPanel.Size = new System.Drawing.Size(241, 151);
-            this.browserPanel.TabIndex = 5;
-            this.browserPanel.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.OnBrowserPanelLoadingComplete);
+            this.GlamFrame.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GlamFrame.Location = new System.Drawing.Point(0, 0);
+            this.GlamFrame.MinimumSize = new System.Drawing.Size(20, 20);
+            this.GlamFrame.Name = "glamFrame";
+            this.GlamFrame.ScrollBarsEnabled = false;
+            this.GlamFrame.Size = new System.Drawing.Size(241, 151);
+            this.GlamFrame.TabIndex = 5;
+            this.GlamFrame.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.OnBrowserPanelLoadingComplete);
             // 
             // panel1
             // 
@@ -114,7 +114,7 @@
             this.panelPlayer.Controls.Add(this.buttonRefresh);
             this.panelPlayer.Controls.Add(this.buttonSwitch);
             this.panelPlayer.Controls.Add(this.panel1);
-            this.panelPlayer.Controls.Add(this.browserPanel);
+            this.panelPlayer.Controls.Add(this.GlamFrame);
             this.panelPlayer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelPlayer.Location = new System.Drawing.Point(0, 0);
             this.panelPlayer.MaximumSize = new System.Drawing.Size(1024, 0);
@@ -187,12 +187,12 @@
         private System.Windows.Forms.Button buttonAdd;
         private System.Windows.Forms.Button buttonRefresh;
         private System.Windows.Forms.Panel panelControl;
-        private System.Windows.Forms.WebBrowser browserPanel;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button buttonSwitch;
         private System.Windows.Forms.Button buttonToggleConrol;
         private System.Windows.Forms.Panel panelPlayer;
         private System.Windows.Forms.TextBox listOfMusicTracks;
+        private GlamFrame GlamFrame;
 
 
 

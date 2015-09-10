@@ -44,6 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlamFrame.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="GlamWindow.cs">
       <SubType>Form</SubType>
     </Compile>
