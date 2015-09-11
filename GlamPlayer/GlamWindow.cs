@@ -108,15 +108,22 @@ namespace GlamPlayer
             }
             else if (this.textboxPlaylistId.Text != string.Empty && this.checkBoxAutoUsePlaylistId.Checked)
             {
-                // todo
+                this.LoadPlaylistByIdMusic();
             }
         }
 
         private void LoadSearchPlaylistMusic()
         {
-            this.GlamFrame.SetSearchPlaylist(this.textboxSearchPlaylistField.Text);
+            this.GlamFrame.SetSearchPlaylist(this.textboxSearchPlaylistField.Text.Trim());
             this.GlamFrame.StartPlayback();
             this.RefreshTracklistText("Custom search", "Custom search terms: " + this.textboxSearchPlaylistField.Text);
+        }
+
+        private void LoadPlaylistByIdMusic()
+        {
+            this.GlamFrame.SetPlaylistById(this.textboxPlaylistId.Text.Trim());
+            this.GlamFrame.StartPlayback();
+            this.RefreshTracklistText("Custom playlist", "Playlist ID: " + this.textboxPlaylistId.Text);
         }
 
         // Refreshes the list of tracks in the control panel
@@ -283,7 +290,14 @@ namespace GlamPlayer
 
         private void OnStartPlaylistByIdButtonClick(object sender, EventArgs e)
         {
-
+            if (this.textboxPlaylistId.Text != string.Empty)
+            {
+                this.LoadPlaylistByIdMusic();
+            }
+            else
+            {
+                MessageBox.Show("Please provide a playlist ID in the playlist field.");
+            }
         }
 
 

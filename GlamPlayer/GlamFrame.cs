@@ -36,6 +36,13 @@ namespace GlamPlayer
             this.CallJavascript("setPlaylist", ids.ToString());
         }
 
+        public void SetPlaylistById(string playlistId)
+        {
+            this.Log("About to call javascript function setPlaylistById()");
+            this.CallJavascript("setPlaylistById", playlistId);
+            this.Log("Finished calling javascript function setPlaylistById()");
+        }
+
         public void SetSearchPlaylist(string searchTerms)
         {
             this.CallJavascript("setSearchPlaylist", searchTerms);

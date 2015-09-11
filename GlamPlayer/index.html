@@ -53,6 +53,14 @@
         isShuffled = false;
       }
 
+      function setPlaylistById(id){
+        player.cuePlaylist({
+          listType : 'playlist',
+          list : id
+        });
+        isShuffled = false;
+      }
+
       function setSearchPlaylist(searchTerms){
         player.cuePlaylist({
           listType : 'search',
