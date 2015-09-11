@@ -255,7 +255,8 @@ namespace GlamPlayer
 
             if (url != null && url.Trim().Length > 0)
             {
-                url = url.Replace("feature=player_embedded&", "");
+                MatchCollection matches = Regex.Matches(url,"^.*?v\\=(.*?)(&.*)?$");
+                url = "https://www.youtube.com/watch?v=" + matches[0].Groups[1].Value;
                 this.textboxTrackUrl.Text = url;
             }
         }
