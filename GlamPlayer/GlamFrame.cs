@@ -14,12 +14,22 @@ namespace GlamPlayer
     public class GlamFrame : WebBrowser
     {
         public bool VolumeFadeEnabled { get; set; } // if true, volume will fade out on calls to StopPlayback() or fade in on calls to StartPlayback(), ResumePlayback()
+        public event GlamFrameReadyEventHandler OnReady;
 
         public void Initialize(string videoPlayerLocation)
         {
             this.Navigate(videoPlayerLocation);
             this.ObjectForScripting = this;
             this.VolumeFadeEnabled = false;
+        }
+
+        // Called by javascript when the iframe is ready
+        public void OnFrameReady()
+        {
+            if (OnReady != null)
+            {
+                OnReady();
+            }
         }
 
         public void SetPlaylist(List<MusicTrack> tracks)

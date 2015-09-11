@@ -18,10 +18,11 @@
         player = new YT.Player('player', {
           height: '390',
           width: '640',
+          /*
           playerVars : {
             enablejsapi: '1',
             origin: 'http://turtlesort.com/'
-          },
+          },*/
           events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
@@ -30,7 +31,7 @@
       }
       
       function onPlayerReady(event) {
-         
+         window.external.OnFrameReady();
       }
 
       
@@ -45,6 +46,7 @@
       var lastPlayedId;
       var fadeInterval;
       var volumeLimit = 100;
+      var shuffleEnabled = true;
       var isShuffled = false;
 
       function setPlaylist(list){
@@ -74,15 +76,13 @@
       }
 
       function start(){
-        
-        player.playVideo();
-        
-        if(!isShuffled){
+        if(shuffleEnabled && !isShuffled){ // prevents shuffling again if we're just resuming the playback
           isShuffled = true;
           player.setShuffle(true);
           player.playVideoAt(0);
         }
- 
+
+        player.playVideo();
         player.setLoop(true);        
       }
 
@@ -90,12 +90,13 @@
 
         clearInterval(fadeInterval); // stop any existing fade in or fade out
 
-        player.playVideo();
-
-        if(!isShuffled){
+        if(shuffleEnabled && !isShuffled){
           isShuffled = true;
           player.setShuffle(true);
-          player.playVideoAt(0); // if we don't call this, it will play the first video of the old, unshuffled order, not the new order
+          player.playVideoAt(0);
+        }
+        else{
+          player.playVideo();
         }
 
         player.setVolume(0);

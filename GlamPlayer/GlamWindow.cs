@@ -39,6 +39,8 @@ namespace GlamPlayer
 
             this.TopMost = true;
 
+            this.SetWindowTitle("Loading frame...");
+            this.GlamFrame.OnReady += OnGlamFrameReady;
             this.GlamFrame.Initialize(VideoPlayerLocation);
             this.GlamFrame.VolumeFadeEnabled = true;
 
@@ -61,6 +63,12 @@ namespace GlamPlayer
             this.timer.Interval = 1000;
             this.timer.Elapsed += DelayedOnMapUpdateStart;
 
+        }
+
+        private void OnGlamFrameReady()
+        {
+            this.SetWindowTitle("GW2 Location-Aware Music Player");
+            this.InitializeMapChangeListener();
         }
 
         // Called by glam frame when it is done loading its contents
@@ -353,7 +361,7 @@ namespace GlamPlayer
 
         private void OnBrowserPanelLoadingComplete(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            this.InitializeMapChangeListener();
+            //this.InitializeMapChangeListener();
             this.ResizeGlamFrame();
         }
 
