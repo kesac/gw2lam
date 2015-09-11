@@ -221,8 +221,6 @@ namespace GlamPlayer
                     WebClient client = new WebClient();
                     string rawData = client.DownloadString(path);
 
-                    System.IO.File.WriteAllText("test.txt", rawData);
-
                     MatchCollection matches = Regex.Matches(rawData, "<meta name=\"title\" content=(.*?)>");
                     string title = matches[0].Groups[1].Value;
                     title = title.Replace("\"", "");
