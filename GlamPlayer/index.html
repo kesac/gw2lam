@@ -8,6 +8,7 @@
     <div id="player"></div>
 
     <script>   
+
       var tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
       var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -36,6 +37,14 @@
 
       
       function onPlayerStateChange(event) {
+      
+        if(shuffleEnabled && shuffleOnNextPlay && event.data == 1){
+          window.external.Log("Attempted to play and shuffle playlist");
+          shuffleOnNextPlay = false;
+          player.setShuffle(true);
+          player.playVideoAt(0);
+        }
+      
         window.external.OnStateChange(event.data);
       }
 
@@ -47,12 +56,12 @@
       var fadeInterval;
       var volumeLimit = 100;
       var shuffleEnabled = true;
-      var isShuffled = false;
+      var shuffleOnNextPlay = false;
 
       function setPlaylist(list){
         var ids = list.split(",");
         player.cuePlaylist(ids);
-        isShuffled = false;
+        shuffleOnNextPlay = true;
       }
 
       function setPlaylistById(id){
@@ -60,7 +69,7 @@
           listType : 'playlist',
           list : id
         });
-        isShuffled = false;
+        shuffleOnNextPlay = true;
       }
 
       function setSearchPlaylist(searchTerms){
@@ -68,7 +77,7 @@
           listType : 'search',
           list : searchTerms
         });
-        isShuffled = false;
+        shuffleOnNextPlay = true;
       }
 
       function getCurrentVideoUrl(){
@@ -76,29 +85,17 @@
       }
 
       function start(){
-        if(shuffleEnabled && !isShuffled){ // prevents shuffling again if we're just resuming the playback
-          isShuffled = true;
-          player.setShuffle(true);
-          player.playVideoAt(0);
-        }
-
         player.playVideo();
         player.setLoop(true);        
       }
-
+      
+      
+      
       function fadeStart(){
 
         clearInterval(fadeInterval); // stop any existing fade in or fade out
 
-        if(shuffleEnabled && !isShuffled){
-          isShuffled = true;
-          player.setShuffle(true);
-          player.playVideoAt(0);
-        }
-        else{
-          player.playVideo();
-        }
-
+        player.playVideo();
         player.setVolume(0);
         player.setLoop(true); // only seems to work when called after playVideo()
 

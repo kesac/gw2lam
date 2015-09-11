@@ -95,14 +95,13 @@ namespace GlamPlayer
 
         public void OnStateChange(string state)
         {
-            this.Log("OnStateChange: " + state);
+            this.Log("OnStateChange:\t" + state);
         }
 
 
         public void Log(string message)
         {
-            //MessageBox.Show(message);
-            System.Console.WriteLine(message + "\t" + DateTime.Now);
+            System.Console.WriteLine("GLAMFRAMELOG: \t" + DateTime.Now + "\t" + message);
         }
 
         private void Play()
