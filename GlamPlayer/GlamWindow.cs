@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.IO;
 using Turtlesort.Glam.Core;
+using Gma.System.MouseKeyHook;
 
 namespace GlamPlayer
 {
@@ -27,11 +28,11 @@ namespace GlamPlayer
 
         private uint CurrentMapId;
 
-
         private int TitleHeight;
         private int BorderWidth;
 
-        private System.Timers.Timer timer;
+        private System.Timers.Timer OnMapUpdateTimer;
+        private IKeyboardEvents KeyboardListener;
 
         public GlamWindow()
         {
@@ -59,10 +60,43 @@ namespace GlamPlayer
             this.TitleHeight = this.PointToScreen(Point.Empty).Y - this.Top;  // http://stackoverflow.com/questions/18429425/c-sharp-absolute-position-of-control-on-screen
             this.BorderWidth = this.PointToScreen(Point.Empty).X - this.Left;
 
-            this.timer = new System.Timers.Timer();
-            this.timer.Interval = 1000;
-            this.timer.Elapsed += DelayedOnMapUpdateStart;
+            this.OnMapUpdateTimer = new System.Timers.Timer();
+            this.OnMapUpdateTimer.Interval = 1000;
+            this.OnMapUpdateTimer.Elapsed += DelayedOnMapUpdateStart;
 
+            this.KeyboardListener = Hook.GlobalEvents();
+            
+            this.KeyboardListener.KeyDown += OnGlobalKeyDown;
+
+        }
+
+        public void OnGlobalKeyDown(object sender, KeyEventArgs keyEvent)
+        {
+            KeyEventArgsExt e = (KeyEventArgsExt)keyEvent;
+
+            if (e.Control)
+            {
+                if (e.KeyCode == Keys.NumPad4)
+                {
+                    this.GlamFrame.StartPreviousTrack();
+                }
+                else if (e.KeyCode == Keys.NumPad5)
+                {
+                    this.GlamFrame.TogglePlayPause();
+                }
+                else if (e.KeyCode == Keys.NumPad6)
+                {
+                    this.GlamFrame.StartNextTrack();
+                }
+                else if (e.KeyCode == Keys.NumPad8)
+                {
+                    this.GlamFrame.IncreaseVolume();
+                }
+                else if (e.KeyCode == Keys.NumPad2)
+                {
+                    this.GlamFrame.DecreaseVolume();
+                }
+            }
         }
 
         private void OnGlamFrameReady()
@@ -176,13 +210,13 @@ namespace GlamPlayer
         // before retrieving the map id from the map change listener object directly.
         private void OnMapUpdateStart(object sender, MapChangeEventArgs e)
         {
-            timer.Start(); // This is set up to call DelayedOnMapUpdateStart()
+            OnMapUpdateTimer.Start(); // This is set up to call DelayedOnMapUpdateStart()
             System.Console.WriteLine("OnMapUpdateStart:\t" + e.MapID + "\t" + DateTime.Now);
         }
 
         private void DelayedOnMapUpdateStart(object sender, EventArgs e)
         {
-            timer.Stop(); // Prevents additional calls to this method and also resets the timer
+            OnMapUpdateTimer.Stop(); // Prevents additional calls to this method and also resets the timer
 
             bool mapChanged = this.CurrentMapId != this.Listener.GetCurrentMap();
             this.CurrentMapId = this.Listener.GetCurrentMap();
@@ -372,7 +406,7 @@ namespace GlamPlayer
         private void OnWindowClosing(object sender, FormClosingEventArgs e)
         {
             this.Core.SaveTrackData();
-            this.timer.Dispose();
+            this.OnMapUpdateTimer.Dispose();
 
             if (this.Listener != null) // if the html page's iframe never loaded, this will be null
             {

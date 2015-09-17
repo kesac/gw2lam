@@ -117,6 +117,27 @@
 
         },100);
       }
+      
+
+      function next(){
+         player.nextVideo()
+      }
+      
+      function previous(){
+         player.previousVideo()
+      }
+      function togglePlayPause(){
+      
+         var state = player.getPlayerState();
+         
+         if(state == 1){ // playing
+            player.pauseVideo();
+         }
+         else if(state == 2){ // paused
+            player.playVideo();
+         }
+
+      }
 
       function pause() {
         player.pauseVideo();
@@ -146,6 +167,28 @@
           },50); 
 
       }
+      
+      function increaseVolume(){
+         window.external.Log("In index.html, decreased volume to " + volume)
+         var volume = player.getVolume();
+         volume += 10;
+         if(volume > 100){
+            volume = 100;
+         }
+         player.setVolume(volume);
+         
+      }
+      
+      function decreaseVolume(){
+         window.external.Log("In index.html, increased volume to " + volume)
+         var volume = player.getVolume();
+         volume -= 10;
+         if(volume < 0){
+            volume = 0;
+         }
+         player.setVolume(volume);
+      }
+      
 
     </script>
   </body>

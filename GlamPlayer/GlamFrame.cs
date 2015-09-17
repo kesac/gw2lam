@@ -88,6 +88,32 @@ namespace GlamPlayer
             }
         }
 
+        public void StartNextTrack()
+        {
+            this.CallJavascript("next");
+        }
+
+        public void StartPreviousTrack()
+        {
+            this.CallJavascript("previous");
+        }
+
+        public void TogglePlayPause()
+        {
+            this.CallJavascript("togglePlayPause");
+        }
+
+
+        public void IncreaseVolume()
+        {
+            this.CallJavascript("increaseVolume");
+        }
+
+        public void DecreaseVolume()
+        {
+            this.CallJavascript("decreaseVolume");
+        }
+
         public void SetFrameSize(int width, int height)
         {
             this.CallJavascript("setFrameSize", width, height);
@@ -113,6 +139,7 @@ namespace GlamPlayer
         {
             this.CallJavascript("fadeStart");
         }
+
 
         private void Pause()
         {
