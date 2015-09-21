@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.IO;
 using Turtlesort.Glam.Core;
+
 using Gma.System.MouseKeyHook;
 
 namespace GlamPlayer
@@ -19,20 +20,25 @@ namespace GlamPlayer
     [ComVisibleAttribute(true)]
     public partial class GlamWindow : Form
     {
+        private readonly string SettingsFile = "application.settings.json";
         private readonly string VideoPlayerLocation = "http://turtlesort.com/glam/";
+        private readonly string KeySearchTerms = "searchterms";
+        private readonly string KeySearchAuto = "searchauto";
+        private readonly string KeyManualPlaylistId = "manualplaylistid";
+        private readonly string KeyManualPlaylistAuto = "manualplaylistauto";
         private readonly uint UnknownMap = 0;
-        private readonly int ControlPanelHeight = 300; // in pixels
-
+        
         private GlamCore Core;
         private MapChangeListener Listener;
-
+        private Settings appSettings;
         private uint CurrentMapId;
-
-        private int TitleHeight;
-        private int BorderWidth;
 
         private System.Timers.Timer OnMapUpdateTimer;
         private IKeyboardEvents KeyboardListener;
+        
+        private int TitleHeight;
+        private int ControlPanelHeight;
+        private int BorderWidth;
 
         public GlamWindow()
         {
@@ -54,6 +60,8 @@ namespace GlamPlayer
             this.Core = new GlamCore();
             this.Core.Load();
 
+            this.appSettings = new Settings();
+
             this.FormClosing += OnWindowClosing;
             this.Resize += OnWindowResize;
 
@@ -68,35 +76,8 @@ namespace GlamPlayer
             
             this.KeyboardListener.KeyDown += OnGlobalKeyDown;
 
-        }
+            this.LoadFieldData();
 
-        public void OnGlobalKeyDown(object sender, KeyEventArgs keyEvent)
-        {
-            KeyEventArgsExt e = (KeyEventArgsExt)keyEvent;
-
-            if (e.Control)
-            {
-                if (e.KeyCode == Keys.NumPad4)
-                {
-                    this.GlamFrame.StartPreviousTrack();
-                }
-                else if (e.KeyCode == Keys.NumPad5)
-                {
-                    this.GlamFrame.TogglePlayPause();
-                }
-                else if (e.KeyCode == Keys.NumPad6)
-                {
-                    this.GlamFrame.StartNextTrack();
-                }
-                else if (e.KeyCode == Keys.NumPad8)
-                {
-                    this.GlamFrame.IncreaseVolume();
-                }
-                else if (e.KeyCode == Keys.NumPad2)
-                {
-                    this.GlamFrame.DecreaseVolume();
-                }
-            }
         }
 
         private void OnGlamFrameReady()
@@ -106,7 +87,7 @@ namespace GlamPlayer
         }
 
         // Called by glam frame when it is done loading its contents
-        public void InitializeMapChangeListener()
+        private void InitializeMapChangeListener()
         {
             this.Listener = new MapChangeListener();
             this.Listener.OnMapChange += OnMapChange;
@@ -132,7 +113,7 @@ namespace GlamPlayer
             this.ThreadAwareInvocation(delegate { this.Text = title; });
         }
 
-
+        
         private void RefreshMapMusic()
         {
             List<MusicTrack> tracks = new List<MusicTrack>();
@@ -142,7 +123,7 @@ namespace GlamPlayer
             {
                 this.GlamFrame.SetPlaylist(tracks);
                 this.GlamFrame.StartPlayback();
-                this.RefreshTracklistText();
+                //this.RefreshTracklistText();
             }
             else if (this.textboxSearchPlaylistField.Text != string.Empty && this.checkBoxAutoUseSearchTerms.Checked)
             {
@@ -158,19 +139,22 @@ namespace GlamPlayer
         {
             this.GlamFrame.SetSearchPlaylist(this.textboxSearchPlaylistField.Text.Trim());
             this.GlamFrame.StartPlayback();
-            this.RefreshTracklistText("Custom search", "Custom search terms: " + this.textboxSearchPlaylistField.Text);
+            //this.RefreshTracklistText("Custom search", "Custom search terms: " + this.textboxSearchPlaylistField.Text);
         }
+        /**/
 
         private void LoadPlaylistByIdMusic()
         {
             this.GlamFrame.SetPlaylistById(this.textboxPlaylistId.Text.Trim());
             this.GlamFrame.StartPlayback();
-            this.RefreshTracklistText("Custom playlist", "Playlist ID: " + this.textboxPlaylistId.Text);
+            //this.RefreshTracklistText("Custom playlist", "Playlist ID: " + this.textboxPlaylistId.Text);
         }
 
         // Refreshes the list of tracks in the control panel
         // If no arguments are given, the current map's tracks are use to populate
         // the list.
+
+        /*
         private void RefreshTracklistText()
         {
             if (this.CurrentMapId != this.UnknownMap)
@@ -195,6 +179,50 @@ namespace GlamPlayer
                 this.groupPanelDedicatedPlaylist.Text = mapName;
                 this.listOfMusicTracks.Text = contents; 
             });
+        }*/
+
+        // Ensures the IFrame expands to fit its panel
+        private void ResizeGlamFrame()
+        {
+            Size size = this.GlamFrame.Size;
+            this.GlamFrame.SetFrameSize(size.Width, size.Height);
+        }
+
+        private void SaveFieldData()
+        {
+            this.appSettings.data[KeySearchTerms] = this.textboxSearchPlaylistField.Text;
+            this.appSettings.data[KeySearchAuto] = this.checkBoxAutoUseSearchTerms.Checked;
+            this.appSettings.data[KeyManualPlaylistId] = this.textboxPlaylistId.Text;
+            this.appSettings.data[KeyManualPlaylistAuto] = this.checkBoxAutoUsePlaylistId.Checked;
+            this.appSettings.SaveToFile(SettingsFile);
+        }
+
+        private void LoadFieldData()
+        {
+            if (File.Exists(SettingsFile))
+            {
+                this.appSettings.LoadFromFile(SettingsFile);
+
+                if (this.appSettings.data.ContainsKey(KeySearchTerms))
+                {
+                    this.textboxSearchPlaylistField.Text = (string)this.appSettings.data[KeySearchTerms];
+                }
+
+                if (this.appSettings.data.ContainsKey(KeySearchAuto))
+                {
+                    this.checkBoxAutoUseSearchTerms.Checked = (bool)this.appSettings.data[KeySearchAuto];
+                }
+
+                if (this.appSettings.data.ContainsKey(KeyManualPlaylistId))
+                {
+                    this.textboxPlaylistId.Text = (string)this.appSettings.data[KeyManualPlaylistId];
+                }
+
+                if (this.appSettings.data.ContainsKey(KeyManualPlaylistAuto))
+                {
+                    this.checkBoxAutoUsePlaylistId.Checked = (bool)this.appSettings.data[KeyManualPlaylistAuto];
+                }
+            }
         }
 
         // This doesn't catch when the player uses a waypoint in the same map, so we rely
@@ -272,14 +300,13 @@ namespace GlamPlayer
 
             if (success)
             {
-                this.RefreshTracklistText();
+                //this.RefreshTracklistText();
             }
             else
             {
                 MessageBox.Show("Could not add " + path + ". A duplicate entry may already exist. Must also be in the format https://www.youtube.com/watch?v=<id>.");
             }
         }
-
 
         private void OnGetCurrentTrackUrlButtonClick(object sender, EventArgs e)
         {
@@ -307,7 +334,7 @@ namespace GlamPlayer
                 bool success = this.Core.RemoveMapMusic(this.CurrentMapId, trackId);
 
                 if (success) { 
-                    this.RefreshTracklistText();
+                    //this.RefreshTracklistText();
                 }
                 else
                 {
@@ -315,7 +342,6 @@ namespace GlamPlayer
                 }
             }
         }
-
 
         private void OnStartSearchPlaylistButtonClick(object sender, EventArgs e)
         {
@@ -340,7 +366,6 @@ namespace GlamPlayer
                 MessageBox.Show("Please provide a playlist ID in the playlist field.");
             }
         }
-
 
         private void OnTransparencyButtonClick(object sender, EventArgs e)
         {
@@ -385,17 +410,39 @@ namespace GlamPlayer
             this.RefreshMapMusic();
         }
 
-        // Ensures the IFrame expands to fit its panel
-        private void ResizeGlamFrame()
-        {
-            Size size = this.GlamFrame.Size;
-            this.GlamFrame.SetFrameSize(size.Width, size.Height);
-        }
-
         private void OnBrowserPanelLoadingComplete(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             //this.InitializeMapChangeListener();
             this.ResizeGlamFrame();
+        }
+
+        public void OnGlobalKeyDown(object sender, KeyEventArgs keyEvent)
+        {
+            KeyEventArgsExt e = (KeyEventArgsExt)keyEvent;
+
+            if (e.Control)
+            {
+                if (e.KeyCode == Keys.NumPad4)
+                {
+                    this.GlamFrame.StartPreviousTrack();
+                }
+                else if (e.KeyCode == Keys.NumPad5)
+                {
+                    this.GlamFrame.TogglePlayPause();
+                }
+                else if (e.KeyCode == Keys.NumPad6)
+                {
+                    this.GlamFrame.StartNextTrack();
+                }
+                else if (e.KeyCode == Keys.NumPad8)
+                {
+                    this.GlamFrame.IncreaseVolume();
+                }
+                else if (e.KeyCode == Keys.NumPad2)
+                {
+                    this.GlamFrame.DecreaseVolume();
+                }
+            }
         }
 
         private void OnWindowResize(object sender, EventArgs e)
@@ -405,6 +452,7 @@ namespace GlamPlayer
 
         private void OnWindowClosing(object sender, FormClosingEventArgs e)
         {
+            this.SaveFieldData();
             this.Core.SaveTrackData();
             this.OnMapUpdateTimer.Dispose();
 
@@ -417,7 +465,6 @@ namespace GlamPlayer
             System.Environment.Exit(1);
 
         }
-
 
     }
 }

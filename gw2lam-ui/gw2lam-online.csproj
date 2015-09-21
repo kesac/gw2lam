@@ -60,9 +60,8 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GwApiNET, Version=2.5.38.7182, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Users\striker-user\Desktop\GwApiNET\GwApiNET\bin\Debug\GwApiNET.dll</HintPath>
+    <Reference Include="GwApiNET">
+      <HintPath>..\..\..\..\..\Transient\GLAM\GwApiNET\GwApiNET\bin\Debug\GwApiNET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
