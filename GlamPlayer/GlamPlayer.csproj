@@ -50,6 +50,7 @@
     <Compile Include="GlamFrame.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="CuedEventHandler.cs" />
     <Compile Include="GlamFrameEventHandler.cs" />
     <Compile Include="GlamWindow.cs">
       <SubType>Form</SubType>

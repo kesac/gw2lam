@@ -15,6 +15,7 @@ namespace GlamPlayer
     {
         public bool VolumeFadeEnabled { get; set; } // if true, volume will fade out on calls to StopPlayback() or fade in on calls to StartPlayback(), ResumePlayback()
         public event GlamFrameReadyEventHandler OnReady;
+        public event CuedEventHandler OnPlaylistCued;
 
         public void Initialize(string videoPlayerLocation)
         {
@@ -32,6 +33,11 @@ namespace GlamPlayer
             }
         }
 
+        /**
+         * Warning: this is an asynchronous event. The playlist must finish
+         * loading before it can be played. When it something is ready to be played, the 
+         * OnCued event is fired.
+         */
         public void SetPlaylist(List<MusicTrack> tracks)
         {
             StringBuilder ids = new StringBuilder();
@@ -46,6 +52,11 @@ namespace GlamPlayer
             this.CallJavascript("setPlaylist", ids.ToString());
         }
 
+        /**
+         * Warning: this is an asynchronous event. The playlist must finish
+         * loading before it can be played. When it something is ready to be played, the 
+         * OnCued event is fired.
+         */
         public void SetPlaylistById(string playlistId)
         {
             this.Log("About to call javascript function setPlaylistById()");
@@ -53,6 +64,11 @@ namespace GlamPlayer
             this.Log("Finished calling javascript function setPlaylistById()");
         }
 
+        /**
+         * Warning: this is an asynchronous event. The playlist must finish
+         * loading before it can be played. When it something is ready to be played, the 
+         * OnCued event is fired.
+         */
         public void SetSearchPlaylist(string searchTerms)
         {
             this.CallJavascript("setSearchPlaylist", searchTerms);
@@ -122,6 +138,12 @@ namespace GlamPlayer
         public void OnStateChange(string state)
         {
             this.Log("OnStateChange:\t" + state);
+
+            if (state == "5" && this.OnPlaylistCued != null)
+            {
+                this.OnPlaylistCued();
+            }
+
         }
 
 

@@ -36,7 +36,8 @@
       
       function onPlayerStateChange(event) {
       
-        if(shuffleEnabled && shuffleOnNextPlay && event.data == 1){
+        
+        if(shuffleEnabled && shuffleOnNextPlay && event.data == YT.PlayerState.PLAYING){
           window.external.Log("Attempted to play and shuffle playlist");
           shuffleOnNextPlay = false;
           player.setShuffle(true);
@@ -125,10 +126,10 @@
       
          var state = player.getPlayerState();
          
-         if(state == 1){ // playing
+         if(state != YT.PlayerState.PAUSED){ 
             player.pauseVideo();
          }
-         else if(state == 2){ // paused
+         else if (state == YT.PlayerState.PAUSED || state == YT.PlayerState.CUED || state == YT.PlayerState.ENDED) {
             player.playVideo();
          }
 
@@ -164,7 +165,7 @@
       }
       
       function increaseVolume(){
-         window.external.Log("In index.html, decreased volume to " + volume)
+
          var volume = player.getVolume();
          volume += 10;
          if(volume > 100){
@@ -175,7 +176,7 @@
       }
       
       function decreaseVolume(){
-         window.external.Log("In index.html, increased volume to " + volume)
+
          var volume = player.getVolume();
          volume -= 10;
          if(volume < 0){

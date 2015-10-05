@@ -48,6 +48,8 @@ namespace GlamPlayer
 
             this.SetWindowTitle("Loading frame...");
             this.GlamFrame.OnReady += OnGlamFrameReady;
+            this.GlamFrame.OnPlaylistCued += OnPlaylistCued;
+
             this.GlamFrame.Initialize(VideoPlayerLocation);
             this.GlamFrame.VolumeFadeEnabled = true;
 
@@ -80,10 +82,16 @@ namespace GlamPlayer
 
         }
 
+
         private void OnGlamFrameReady()
         {
             this.SetWindowTitle("GW2 Location-Aware Music Player");
             this.InitializeMapChangeListener();
+        }
+
+        private void OnPlaylistCued()
+        {
+            this.GlamFrame.StartPlayback();
         }
 
         // Called by glam frame when it is done loading its contents
@@ -122,7 +130,7 @@ namespace GlamPlayer
             if (tracks.Count > 0)
             {
                 this.GlamFrame.SetPlaylist(tracks);
-                this.GlamFrame.StartPlayback();
+                //this.GlamFrame.StartPlayback();
                 //this.RefreshTracklistText();
             }
             else if (this.textboxSearchPlaylistField.Text != string.Empty && this.checkBoxAutoUseSearchTerms.Checked)
@@ -138,7 +146,7 @@ namespace GlamPlayer
         private void LoadSearchPlaylistMusic()
         {
             this.GlamFrame.SetSearchPlaylist(this.textboxSearchPlaylistField.Text.Trim());
-            this.GlamFrame.StartPlayback();
+            //this.GlamFrame.StartPlayback();
             //this.RefreshTracklistText("Custom search", "Custom search terms: " + this.textboxSearchPlaylistField.Text);
         }
         /**/
@@ -146,7 +154,7 @@ namespace GlamPlayer
         private void LoadPlaylistByIdMusic()
         {
             this.GlamFrame.SetPlaylistById(this.textboxPlaylistId.Text.Trim());
-            this.GlamFrame.StartPlayback();
+            //this.GlamFrame.StartPlayback();
             //this.RefreshTracklistText("Custom playlist", "Playlist ID: " + this.textboxPlaylistId.Text);
         }
 
