@@ -16,6 +16,7 @@ namespace GlamPlayer
         public bool VolumeFadeEnabled { get; set; } // if true, volume will fade out on calls to StopPlayback() or fade in on calls to StartPlayback(), ResumePlayback()
         public event GlamFrameReadyEventHandler OnReady;
         public event CuedEventHandler OnPlaylistCued;
+        private bool IsReady; // will be true once the Javascript frame has finished loading and is ready to accept commands
 
         public void Initialize(string videoPlayerLocation)
         {
@@ -27,6 +28,7 @@ namespace GlamPlayer
         // Called by javascript when the iframe is ready
         public void OnFrameReady()
         {
+            this.IsReady = true;
             if (OnReady != null)
             {
                 OnReady();
@@ -76,7 +78,16 @@ namespace GlamPlayer
 
         public string getCurrentVideoUrl()
         {
-            return this.CallJavascript("getCurrentVideoUrl").ToString();
+            object result = this.CallJavascript("getCurrentVideoUrl");
+
+            if (result != null)
+            {
+                return result.ToString();
+            }
+            else 
+            { 
+                return string.Empty;
+            }
         }
 
         public void StartPlayback()
@@ -176,26 +187,28 @@ namespace GlamPlayer
         private object CallJavascript(string functionName, params object[] args)
         {
             object returnValue = null;
-            Action action = delegate
-            {
-                if (args.Length > 0) { 
-                    returnValue = this.Document.InvokeScript(functionName, args);
+            if (this.IsReady) 
+            { 
+                Action action = delegate
+                {
+                    if (args.Length > 0) { 
+                        returnValue = this.Document.InvokeScript(functionName, args);
+                    }
+                    else
+                    {
+                        returnValue = this.Document.InvokeScript(functionName);
+                    }
+                };
+
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new MethodInvoker(action));
                 }
                 else
                 {
-                    returnValue = this.Document.InvokeScript(functionName);
+                    action();
                 }
-            };
-
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new MethodInvoker(action));
             }
-            else
-            {
-                action();
-            }
-
             return returnValue;
 
         }
