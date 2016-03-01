@@ -1,0 +1,8 @@
+﻿<Window x:Class="Glam.Desktop.GlamDesktop"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Guild Wars 2 Location-Aware Music" Height="250" Width="325">
+    <Grid>
+        <Label Name="LabelLocation" Content="Unknown" FontSize="20" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="200" Width="297"/>
+    </Grid>
+</Window>

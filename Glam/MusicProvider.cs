@@ -6,29 +6,20 @@ using System.Threading.Tasks;
 
 namespace Glam
 {
-    public enum MusicType {
-        WAV, 
-        MP3, 
-        OGG, 
-        STREAM,
-        OTHER
-    }
-
     public class Music
     {
-        public MusicType Type { get; set; }
         public string Path { get; set; }
+        public string Tags { get; set; }
 
-        public Music(MusicType type, string path)
+        public Music(string path)
         {
-            this.Type = type;
             this.Path = path;
         }
     }
 
     public interface MusicProvider
     {
-        public abstract List<Music> GetMapMusic(uint mapId);
-        public abstract List<Music> GetMapMusic(string mapName);
+        List<Music> GetMapMusic(uint mapId);
+        List<Music> GetMapMusic(string mapName);
     }
 }

@@ -32,9 +32,9 @@ namespace Glam
          * updates from GW2 can start without the map ID changing on map changes. Instead use
          * OnMapChange.
          */
-        public event MapChangeEventHandler OnUpdateStart;
-        public event MapChangeEventHandler OnUpdateStop;
-        public event MapChangeEventHandler OnMapChange;
+        public event MapChangeEventHandler UpdateStarted;
+        public event MapChangeEventHandler UpdateStopped;
+        public event MapChangeEventHandler MapChanged;
 
         public int CheckFrequency { get; set; }
 
@@ -79,10 +79,10 @@ namespace Glam
                     if (incomingUpdates)
                     {
                         incomingUpdates = false;
-                        if (this.OnUpdateStop != null)
+                        if (this.UpdateStopped != null)
                         {
                             MapChangeEventArgs e = new MapChangeEventArgs(mapID, tick);
-                            this.OnUpdateStop(this, e);
+                            this.UpdateStopped(this, e);
                         }
                     }
                 }
@@ -90,10 +90,10 @@ namespace Glam
                 if (mapID != MumbleLink.MapId)
                 {
                     mapID = this.MumbleLink.MapId;
-                    if (this.OnMapChange != null)
+                    if (this.MapChanged != null)
                     {
                         MapChangeEventArgs e = new MapChangeEventArgs(mapID, tick);
-                        this.OnMapChange(this, e);
+                        this.MapChanged(this, e);
                     }
                 }
 
@@ -102,10 +102,10 @@ namespace Glam
                     if (tick != MumbleLink.Tick)
                     {
                         incomingUpdates = true;
-                        if (this.OnUpdateStart != null) 
+                        if (this.UpdateStarted != null) 
                         { 
                             MapChangeEventArgs e = new MapChangeEventArgs(mapID, tick);
-                            this.OnUpdateStart(this, e);
+                            this.UpdateStarted(this, e);
                         }
                     }
                 }
