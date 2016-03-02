@@ -11,7 +11,7 @@ namespace Glam.Desktop
     public class DesktopMusicProvider : MusicProvider
     {
         private string RootMusicFolder;
-        private readonly string[] SupportedFormats = new string[] { ".mp3", ".wav", ".ogg" };
+        private readonly string[] SupportedFormats = new string[] { "mp3", "wav", "ogg", "m3u" };
 
         public DesktopMusicProvider(string musicFolderPath)
         {
@@ -41,16 +41,31 @@ namespace Glam.Desktop
 
             string path = this.RootMusicFolder + "\\" + mapName;
 
-            if (Directory.Exists(path))
+            if (File.Exists(path + ".m3u")) // Check if a playlist exists for the map
+            {
+                Playlist playlist = new Playlist(path + ".m3u");
+                result.AddRange(playlist.GetMusic());
+            }
+            
+            if (Directory.Exists(path)) // Else check if a folder of files exists for the map
             {
                 string[] files = Directory.GetFiles(Path.GetFullPath(path));
                 foreach (string f in files)
                 {
                     foreach (string format in SupportedFormats)
                     {
-                        if (f.EndsWith(format))
+                        if (f.ToLower().EndsWith("." + format))
                         {
-                            result.Add(new Music(f));
+                            if (format == "m3u")
+                            {
+                                Playlist playlist = new Playlist(f);
+                                result.AddRange(playlist.GetMusic());
+                            }
+                            else {
+
+                                result.Add(new Music(f));
+                            }
+
                             break;
                         }
                     }
