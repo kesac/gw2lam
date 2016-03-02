@@ -8,7 +8,7 @@ using Glam;
 
 namespace Glam.Desktop
 {
-    public class DesktopMusicProvider : MusicProvider
+    public class DesktopMusicProvider : IMusicProvider
     {
         private string RootMusicFolder;
         private readonly string[] SupportedFormats = new string[] { "mp3", "wav", "ogg", "m3u" };

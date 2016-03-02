@@ -17,7 +17,7 @@ namespace Glam
         }
     }
 
-    public interface MusicProvider
+    public interface IMusicProvider
     {
         List<Music> GetMapMusic(uint mapId);
         List<Music> GetMapMusic(string mapName);

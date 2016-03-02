@@ -2,173 +2,137 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Glam;
 using NAudio;
 using NAudio.Wave;
 using NAudio.Vorbis;
 
-// Warning: older code - this needs to be rewritten to no use obsolete code
+// Warning: older code - this needs to be rewritten to not use obsolete code
 namespace Glam.Desktop
 {
     public class DesktopMusicPlayer
     {
-        private const float FADE_OUT_STEP = 0.03f;
-        private enum TargetState { PLAY, FADEOUT, STOP, NOTHING }
+        private const float FadeOutStep = 0.03f;
+        private enum TargetState { Play, Fadeout, Stop, Nothing }
 
-        private IWavePlayer waveOutDevice;
-        private AudioFileReader audioFileReader;
-        private VorbisWaveReader vorbisFileReader;
-        private TargetState targetState;
+        private IWavePlayer AudioOut;
+        private IWaveProvider AudioFileReader;
+        private TargetState Target;
 
         public List<Music> Playlist { get; set; }
-
-        public string CurrentPosition
-        {
-            get
-            {
-                if (audioFileReader != null)
-                {
-                    return audioFileReader.CurrentTime.ToString("m\\:ss");
-                }
-                else if (vorbisFileReader != null)
-                {
-                    return vorbisFileReader.CurrentTime.ToString("m\\:ss");
-                }
-                else
-                {
-                    return "0:00";
-                }
-            }
-        }
-
-        public string CurrentLength
-        {
-            get
-            {
-                if (audioFileReader != null)
-                {
-                    return audioFileReader.TotalTime.ToString("m\\:ss");
-                }
-                else if (vorbisFileReader != null)
-                {
-                    return vorbisFileReader.TotalTime.ToString("m\\:ss");
-                }
-                else
-                {
-                    return "0:00";
-                }
-            }
-        }
-
-        public string TargetAudioFile { get; private set; }
-        public float Volume
-        {
-            get
-            {
-                if (audioFileReader != null)
-                {
-                    return audioFileReader.Volume;
-                }
-                else if (vorbisFileReader != null && waveOutDevice != null)
-                {
-                    return waveOutDevice.Volume;
-                }
-                else{
-                    return 0;
-                }
-            }
-        }
+        public int CurrentlyPlayingIndex { get; set; }
 
         public bool IsPlaying
         {
             get
             {
-                return this.audioFileReader != null || this.vorbisFileReader != null;
+                return this.AudioOut != null && this.AudioOut.PlaybackState == PlaybackState.Playing;
             }
         }
 
         public DesktopMusicPlayer()
         {
-            this.TargetAudioFile = "";
-            this.targetState = TargetState.NOTHING;
+            this.Target = TargetState.Nothing;
         }
 
-        // Used for fading out
-        public void Update()
+        public void ShufflePlaylist()
         {
-           if (this.targetState == TargetState.FADEOUT)
+            if (this.Playlist != null)
             {
-                if (audioFileReader != null)
-                {
-                    this.audioFileReader.Volume -= FADE_OUT_STEP;
-                    if (this.audioFileReader.Volume < 0)
-                    {
-                        this.audioFileReader.Volume = 0;
-                        this.StopAudio();
-                    }
-                }
-                else if (vorbisFileReader != null)
-                {
-
-                    if (this.waveOutDevice.Volume - FADE_OUT_STEP < 0)
-                    {
-                        this.waveOutDevice.Volume = 0;
-                        this.StopAudio();
-                    }
-                    else
-                    {
-                        this.waveOutDevice.Volume -= FADE_OUT_STEP;
-                    }
-
-                }
-                else
-                {
-                    this.StopAudio();
-                }
+                Random r = new Random();
+                this.Playlist = this.Playlist.OrderBy(m => r.Next()).ToList();
             }
-
-           // No more data to read, ensure that the IsPlaying attribute will return false
-           if (audioFileReader != null && !audioFileReader.HasData(1))
-           {
-               StopAudio();
-           }
-           else if (vorbisFileReader != null && vorbisFileReader.Position == vorbisFileReader.Length)
-           {
-               StopAudio();
-           }
-           
         }
 
-        public void PlayRandomTrack()
+        public void StartPlaylist()
         {
+            this.Stop();
 
             if (this.Playlist == null || this.Playlist.Count == 0)
             {
                 return;
             }
 
-            Random random = new Random();
-            this.TargetAudioFile = this.Playlist[random.Next(this.Playlist.Count)].Path;
+            this.CurrentlyPlayingIndex = 0;
+            this.StartTrack(this.Playlist[this.CurrentlyPlayingIndex].Path);
 
-            this.waveOutDevice = new WaveOut();
+        }
 
-            if (this.TargetAudioFile.EndsWith(".mp3") || this.TargetAudioFile.EndsWith(".wav"))
+        private void StartTrack(string filePath)
+        {
+            this.AudioOut = new WaveOutEvent();
+
+            if (filePath.EndsWith(".mp3") || filePath.EndsWith(".wav"))
             {
-                this.audioFileReader = new AudioFileReader(this.TargetAudioFile);
-                this.waveOutDevice.Init(audioFileReader);
+                this.AudioFileReader = new AudioFileReader(filePath);
             }
-            else if (this.TargetAudioFile.EndsWith(".ogg"))
+            else if (filePath.EndsWith(".ogg"))
             {
-                this.vorbisFileReader = new VorbisWaveReader(this.TargetAudioFile);
-                this.waveOutDevice.Init(vorbisFileReader);
-                
+                this.AudioFileReader = new VorbisWaveReader(filePath);
             }
 
-            this.waveOutDevice.Volume = 1.0f; // Unfortunately, VorbisFileReader does not have volume control
-            this.waveOutDevice.Play();
-            this.targetState = TargetState.NOTHING;
+            this.AudioOut.Init(this.AudioFileReader);
+            this.AudioOut.Volume = 1.0f; // Unfortunately, VorbisFileReader does not have volume control
+            this.AudioOut.Play();
+            this.AudioOut.PlaybackStopped += OnPlaybackStopped;
+            this.Target = TargetState.Nothing;
+        }
 
+        public void Resume()
+        {
+            if (this.AudioOut != null)
+            {
+                this.AudioOut.Play();
+            }
+        }
+
+        public void Pause()
+        {
+            if (this.AudioOut != null)
+            {
+                this.AudioOut.Pause();
+            }    
+        }
+
+        // OnPlayback stop, advance to the next track
+        private void OnPlaybackStopped(object sender, StoppedEventArgs e)
+        {
+            this.CurrentlyPlayingIndex++;
+            if (this.CurrentlyPlayingIndex >= this.Playlist.Count())
+            {
+                this.CurrentlyPlayingIndex = 0;
+            }
+            
+            this.Stop();
+            this.StartTrack(this.Playlist[this.CurrentlyPlayingIndex].Path);
+        }
+
+        // Used for fading out
+        public void Update()
+        {
+            if (this.Target == TargetState.Fadeout)
+            {
+                if (this.AudioFileReader != null)
+                {
+                    if (this.AudioOut.Volume - FadeOutStep < 0)
+                    {
+                        this.AudioOut.Volume = 0;
+                        this.Target = TargetState.Nothing;
+                        this.Pause();
+                    }
+                    else
+                    {
+                        this.AudioOut.Volume -= FadeOutStep;
+                    }
+                }
+                else
+                {
+                    this.Target = TargetState.Nothing;
+                    this.Pause();
+                }
+            }
         }
 
         // Only works if Update() is being called in the main loop
@@ -176,38 +140,30 @@ namespace Glam.Desktop
         {
             if (this.IsPlaying)
             {
-                this.targetState = TargetState.FADEOUT;
+                this.Target = TargetState.Fadeout;
             }
         }
 
-        public void StopAudio()
+        public void Stop()
         {
-            TargetAudioFile = "";
-
-            if (waveOutDevice != null)
+            if (AudioOut != null && AudioOut.PlaybackState != PlaybackState.Stopped)
             {
-                waveOutDevice.Stop();
+                AudioOut.Stop();
             }
             
-            if (audioFileReader != null)
+            if (AudioFileReader is IDisposable && AudioFileReader != null)
             {
-                audioFileReader.Dispose();
-                audioFileReader = null;    
-            }
-            
-            if (vorbisFileReader != null)
-            {
-                vorbisFileReader.Dispose();
-                vorbisFileReader = null;
+                ((IDisposable)AudioFileReader).Dispose();
+                AudioFileReader = null;    
             }
 
-            if (waveOutDevice != null)
+            if (AudioOut != null)
             {
-                waveOutDevice.Dispose();
-                waveOutDevice = null;
+                AudioOut.Dispose();
+                AudioOut = null;
             }
 
-            this.targetState = TargetState.NOTHING;
+            this.Target = TargetState.Nothing;
         }
 
     }
