@@ -5,10 +5,6 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlamLibrary", "GlamLibrary.csproj", "{4F13A561-8B3E-4456-8D42-A094076E2373}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gw2lam-online", "..\gw2lam-ui\gw2lam-online.csproj", "{6C6D2A05-1529-4599-8723-3E591C1A1667}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gw2lam-offline", "..\gw2lam-offline\gw2lam-offline.csproj", "{D2025ECD-4A48-4872-BCED-4494D745E8EC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlamTests", "..\gw2lam-tests\GlamTests.csproj", "{F07F7991-651F-4906-9B34-E467AE6C4A0F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlamPlayer", "..\GlamPlayer\GlamPlayer.csproj", "{E79E7339-C236-4BF0-9C4D-6A2249B39077}"
@@ -27,14 +23,6 @@ Global
 		{4F13A561-8B3E-4456-8D42-A094076E2373}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F13A561-8B3E-4456-8D42-A094076E2373}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F13A561-8B3E-4456-8D42-A094076E2373}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6C6D2A05-1529-4599-8723-3E591C1A1667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6C6D2A05-1529-4599-8723-3E591C1A1667}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6C6D2A05-1529-4599-8723-3E591C1A1667}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6C6D2A05-1529-4599-8723-3E591C1A1667}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D2025ECD-4A48-4872-BCED-4494D745E8EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D2025ECD-4A48-4872-BCED-4494D745E8EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D2025ECD-4A48-4872-BCED-4494D745E8EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D2025ECD-4A48-4872-BCED-4494D745E8EC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F07F7991-651F-4906-9B34-E467AE6C4A0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F07F7991-651F-4906-9B34-E467AE6C4A0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F07F7991-651F-4906-9B34-E467AE6C4A0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
