@@ -13,12 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TimerTask = System.Timers.Timer;
+using MahApps.Metro.Controls;
 using Glam;
+
 
 namespace Glam.Desktop
 {
 
-    public partial class GlamDesktop : Window
+    public partial class GlamDesktop : MetroWindow
     {
 
         private MapService MapService;
@@ -28,6 +30,7 @@ namespace Glam.Desktop
         private uint LastMapId;
 
         private TimerTask DelayedUpdateStartTimer;
+        private TimerTask TrackDisplayTimer;
 
         public GlamDesktop()
         {
@@ -50,11 +53,32 @@ namespace Glam.Desktop
             this.DelayedUpdateStartTimer = new TimerTask();
             this.DelayedUpdateStartTimer.Interval = 1000;
             this.DelayedUpdateStartTimer.Elapsed += OnDelayedUpdateStart;
+
+            this.TrackDisplayTimer = new TimerTask();
+            this.TrackDisplayTimer.Interval = 1000;
+            this.TrackDisplayTimer.Elapsed += UpdateTrackDisplay;
+            this.TrackDisplayTimer.Start();
         }
-        
+
+        private void UpdateTrackDisplay(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (this.MusicPlayer.IsPlaying)
+            {
+                this.Dispatcher.BeginInvoke((Action)(() => this.LabelCurrentTrack.Content = this.MusicPlayer.TrackName));
+                this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Value = this.MusicPlayer.TrackPosition));
+                this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Maximum = this.MusicPlayer.TrackLength));
+            }
+            else
+            {
+                this.Dispatcher.BeginInvoke((Action)(() => this.LabelCurrentTrack.Content = string.Empty));
+                this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Value = 0));
+                this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Maximum = 1));
+            }
+        }
+
         private void OnUpdateStopped(object sender, MapChangeEventArgs e)
         {
-            this.Dispatcher.BeginInvoke((Action)(() => this.LabelLocation.Content = "Unknown Location"));
+            this.Dispatcher.BeginInvoke((Action)(() => this.Title = "Unknown Location"));
             this.MusicPlayer.FadeOut();
         }
 
@@ -70,7 +94,7 @@ namespace Glam.Desktop
             uint currentMapId = this.Monitor.GetCurrentMap();
 
             string mapName = this.MapService.ResolveName(currentMapId);
-            this.Dispatcher.BeginInvoke((Action)(() => this.LabelLocation.Content = mapName));
+            this.Dispatcher.BeginInvoke((Action)(() => this.Title = mapName));
 
             if (currentMapId == this.LastMapId)
             {
@@ -89,6 +113,8 @@ namespace Glam.Desktop
         {
             this.MusicPlayer.Stop();
             this.Monitor.Stop();
+            this.DelayedUpdateStartTimer.Stop();
+            this.TrackDisplayTimer.Stop();
         }
     }
 }

@@ -98,7 +98,7 @@ namespace Glam
             }
             else
             {
-                return id.ToString();
+                return "Map " + id.ToString();
             }
         }
     }

@@ -19,13 +19,68 @@ namespace Glam.Desktop
         private enum Fade { Out, In, Disabled }
 
         private IWavePlayer AudioOut;
-        private IWaveProvider AudioFileReader;
+        private IWaveProvider AudioFile;
         private Fade FadeTarget;
 
         private TimerTask FadeTimer;
 
         public List<Music> Playlist { get; set; }
-        public int CurrentlyPlayingIndex { get; set; }
+        public int TrackIndex { get; set; }
+
+        public long TrackLength
+        {
+            get
+            {
+                if (this.IsPlaying && this.TrackIndex >= 0)
+                {
+                    if(this.AudioFile is AudioFileReader)
+                    {
+                        return ((AudioFileReader)this.AudioFile).Length;
+                    }
+                    else if(this.AudioFile is VorbisWaveReader)
+                    {
+                        return ((VorbisWaveReader)this.AudioFile).Length;
+                    }
+                }
+                
+                return 0;
+            }
+        }
+
+        public long TrackPosition
+        {
+            get
+            {
+                if (this.IsPlaying && this.TrackIndex >= 0)
+                {
+                    if (this.AudioFile is AudioFileReader)
+                    {
+                        return ((AudioFileReader)this.AudioFile).Position;
+                    }
+                    else if (this.AudioFile is VorbisWaveReader)
+                    {
+                        return ((VorbisWaveReader)this.AudioFile).Position;
+                    }
+                }
+
+                return 0;
+            }
+        }
+
+
+        public string TrackName {
+            get
+            {
+                if(this.IsPlaying && this.TrackIndex >= 0)
+                {
+                    return this.Playlist[this.TrackIndex].Name;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+        }
 
         public bool IsPlaying
         {
@@ -58,8 +113,8 @@ namespace Glam.Desktop
 
             if (this.Playlist != null && this.Playlist.Count > 0)
             {
-                this.CurrentlyPlayingIndex = 0;
-                this.StartTrack(this.Playlist[this.CurrentlyPlayingIndex].Path);    
+                this.TrackIndex = 0;
+                this.StartTrack(this.Playlist[this.TrackIndex].Path);    
             }
         }
 
@@ -72,14 +127,14 @@ namespace Glam.Desktop
 
                 if (filePath.EndsWith(".mp3") || filePath.EndsWith(".wav"))
                 {
-                    this.AudioFileReader = new AudioFileReader(filePath);
+                    this.AudioFile = new AudioFileReader(filePath);
                 }
                 else if (filePath.EndsWith(".ogg"))
                 {
-                    this.AudioFileReader = new VorbisWaveReader(filePath);
+                    this.AudioFile = new VorbisWaveReader(filePath);
                 }
 
-                this.AudioOut.Init(this.AudioFileReader);
+                this.AudioOut.Init(this.AudioFile);
                 this.AudioOut.Volume = 1.0f; // Unfortunately, VorbisFileReader does not have volume control
                 this.AudioOut.Play();
                 this.AudioOut.PlaybackStopped += OnPlaybackStopped;
@@ -135,17 +190,17 @@ namespace Glam.Desktop
         // OnPlayback stop, advance to the next track
         private void OnPlaybackStopped(object sender, StoppedEventArgs e)
         {
-            this.CurrentlyPlayingIndex++;
-            if (this.CurrentlyPlayingIndex >= this.Playlist.Count())
+            this.TrackIndex++;
+            if (this.TrackIndex >= this.Playlist.Count())
             {
-                this.CurrentlyPlayingIndex = 0;
+                this.TrackIndex = 0;
             }
             
             this.Stop();
 
             if (this.Playlist != null && this.Playlist.Count > 0)
             {
-                this.StartTrack(this.Playlist[this.CurrentlyPlayingIndex].Path);
+                this.StartTrack(this.Playlist[this.TrackIndex].Path);
             }
             
         }
@@ -153,7 +208,7 @@ namespace Glam.Desktop
         // Used for fading out
         public void UpdateFade(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (this.AudioFileReader != null)
+            if (this.AudioFile != null)
             {
                 if (this.FadeTarget == Fade.Out)
                 {
@@ -206,10 +261,10 @@ namespace Glam.Desktop
                 AudioOut.Stop();
             }
             
-            if (AudioFileReader is IDisposable && AudioFileReader != null)
+            if (AudioFile is IDisposable && AudioFile != null)
             {
-                ((IDisposable)AudioFileReader).Dispose();
-                AudioFileReader = null;    
+                ((IDisposable)AudioFile).Dispose();
+                AudioFile = null;    
             }
 
             if (AudioOut != null)
