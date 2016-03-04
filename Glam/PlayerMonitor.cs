@@ -36,7 +36,7 @@ namespace Glam
         public event MapChangeEventHandler UpdateStopped;
         public event MapChangeEventHandler MapChanged;
 
-        public int CheckFrequency { get; set; }
+        public double CheckFrequency { get; set; }
 
         private Thread CurrentThread;
 
@@ -45,7 +45,7 @@ namespace Glam
             this.IsRunning = false;
             this.MumbleLink = new MumbleLink();
 
-            this.CheckFrequency = 1000; //ms
+            this.CheckFrequency = 1; //ms
         }
 
         public uint GetCurrentMap()
@@ -73,8 +73,7 @@ namespace Glam
 
             while (this.IsRunning)
             {
-
-                if (tick == MumbleLink.Tick && (DateTime.Now - timeSinceLastTick).Milliseconds >= this.CheckFrequency)
+                if (tick == MumbleLink.Tick && (DateTime.Now - timeSinceLastTick).Seconds > this.CheckFrequency)
                 {
                     if (incomingUpdates)
                     {
