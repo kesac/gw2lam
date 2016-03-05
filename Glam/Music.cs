@@ -31,10 +31,4 @@ namespace Glam
             this.Path = path;
         }
     }
-
-    public interface IMusicProvider
-    {
-        List<Music> GetMapMusic(uint mapId);
-        List<Music> GetMapMusic(string mapName);
-    }
 }

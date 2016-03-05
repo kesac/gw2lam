@@ -45,7 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MapService.cs" />
-    <Compile Include="MusicProvider.cs" />
+    <Compile Include="IMusicProvider.cs" />
+    <Compile Include="Music.cs" />
     <Compile Include="PlayerMonitor.cs" />
     <Compile Include="MumbleLink.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
