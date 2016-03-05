@@ -13,7 +13,7 @@ using NAudio.Vorbis;
 // Warning: older code - this needs to be rewritten to not use obsolete code
 namespace Glam.Desktop
 {
-    public class DesktopMusicPlayer
+    public class MusicPlayer
     {
         private const float FadeOutStep = 0.03f;
         private enum Fade { Out, In, Disabled }
@@ -31,7 +31,7 @@ namespace Glam.Desktop
         {
             get
             {
-                if (this.IsPlaying && this.TrackIndex >= 0)
+                if (this.AudioReader != null)
                 {
                     if(this.AudioReader is AudioFileReader)
                     {
@@ -39,7 +39,7 @@ namespace Glam.Desktop
                     }
                     else if (this.AudioReader is Mp3FileReader)
                     {
-                        return ((Mp3FileReader)this.AudioReader).Position;
+                        return ((Mp3FileReader)this.AudioReader).Length;
                     }
                     else if(this.AudioReader is VorbisWaveReader)
                     {
@@ -55,7 +55,7 @@ namespace Glam.Desktop
         {
             get
             {
-                if (this.IsPlaying && this.TrackIndex >= 0)
+                if (this.AudioReader != null)
                 {
                     if (this.AudioReader is AudioFileReader)
                     {
@@ -79,7 +79,7 @@ namespace Glam.Desktop
         public string TrackName {
             get
             {
-                if(this.IsPlaying && this.TrackIndex >= 0)
+                if(this.Playlist != null && this.Playlist.Count() > 0 && this.TrackIndex >= 0)
                 {
                     return this.Playlist[this.TrackIndex].Name;
                 }
@@ -98,7 +98,7 @@ namespace Glam.Desktop
             }
         }
 
-        public DesktopMusicPlayer()
+        public MusicPlayer()
         {
             this.FadeTarget = Fade.Disabled;
             this.FadeTimer = new System.Timers.Timer();
@@ -230,7 +230,10 @@ namespace Glam.Desktop
         // OnPlayback stop, advance to the next track
         private void OnPlaybackStopped(object sender, StoppedEventArgs e)
         {
-            this.StartNextTrack();
+            if(this.TrackPosition >= this.TrackLength)
+            {
+                this.StartNextTrack();
+            }
         }
 
         // Used for fading out
@@ -281,19 +284,18 @@ namespace Glam.Desktop
                 this.FadeTarget = Fade.Out;
             }
         }
-
+        
         public void Stop()
         {
-            System.Console.Write(1);
+            
             if (AudioPlayer != null)
             {
                 AudioPlayer.Stop();
-                System.Console.Write(2);
             }
-            System.Console.Write(3);
+
             if (AudioReader != null)
             {
-                if(AudioReader is IDisposable)
+                if (AudioReader is IDisposable)
                 {
                     try
                     {
@@ -305,7 +307,7 @@ namespace Glam.Desktop
                     }
                 }
 
-                AudioReader = null;    
+                AudioReader = null;
             }
 
             if (AudioPlayer != null)
@@ -315,7 +317,7 @@ namespace Glam.Desktop
             }
 
             this.FadeTarget = Fade.Disabled;
+            
         }
-
     }
 }

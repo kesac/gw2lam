@@ -78,7 +78,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DesktopMusicProvider.cs" />
+    <Compile Include="MusicProvider.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -89,7 +89,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DesktopMusicPlayer.cs" />
+    <Compile Include="MusicPlayer.cs" />
     <Compile Include="Playlist.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

@@ -24,8 +24,8 @@ namespace Glam.Desktop
     {
 
         private MapService MapService;
-        private DesktopMusicProvider MusicProvider;
-        private DesktopMusicPlayer MusicPlayer;
+        private MusicProvider MusicProvider;
+        private MusicPlayer MusicPlayer;
         private PlayerMonitor Monitor;
         private uint LastMapId;
 
@@ -39,8 +39,8 @@ namespace Glam.Desktop
             this.MapService = new MapService();
             this.MapService.LoadMapData(); // this makes calls to GW2's web API if a cache of the map data doesn't exist yet
 
-            this.MusicProvider = new DesktopMusicProvider("music");
-            this.MusicPlayer = new DesktopMusicPlayer();
+            this.MusicProvider = new MusicProvider("music");
+            this.MusicPlayer = new MusicPlayer();
 
             this.Monitor = new PlayerMonitor();
             this.Monitor.UpdateStarted += OnUpdateStarted;
