@@ -8,12 +8,30 @@
         ShowIconOnTitleBar="False"
         ResizeMode="CanMinimize"
         Title="GW2 Location Aware Music Player" Height="105" Width="325">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid>
         <Grid HorizontalAlignment="Left" Height="34" Margin="10,43,0,-7" VerticalAlignment="Top" Width="295">
-            <Button x:Name="ButtonPlay" FontSize="8" Content="Play" HorizontalAlignment="Left" VerticalAlignment="Top" Width="40" RenderTransformOrigin="0.013,0.213" Margin="0,-1,0,0" Height="10"/>
-            <Button x:Name="ButtonCopy" FontSize="8" Content="Pause" HorizontalAlignment="Left" VerticalAlignment="Top" Width="38" RenderTransformOrigin="0.013,0.213" Margin="45,-1,0,0"/>
+            <Button Focusable="False" Content="{StaticResource appbar_control_rewind_variant}" x:Name="ButtonPreviousTrack" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Height="25"  Width="25" Click="ButtonPreviousTrack_Click" />
+            <Button Focusable="False" Content="{StaticResource appbar_control_pause}" x:Name="ButtonTogglePlay" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Margin="30,0,0,0" Height="25" Width="25" Click="ButtonTogglePlay_Click" />
+
+            <Button Focusable="False" Content="{StaticResource appbar_control_fastforward_variant}" x:Name="ButtonNextTrack" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Margin="60,0,0,0" Height="25"  Width="25" Click="ButtonNextTrack_Click" />
         </Grid>
         <ProgressBar x:Name="ProgressBar" HorizontalAlignment="Left" Margin="10,23,0,0" VerticalAlignment="Top" Width="295" Height="15"/>
         <Label x:Name="LabelCurrentTrack" Content="Test Content" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Width="295"/>
+
+        <Rectangle Margin="208,45,91,8" Width="15" Height="18">
+            <Rectangle.Fill>
+                <VisualBrush Visual="{StaticResource appbar_sound_2}" Stretch="Uniform" />
+            </Rectangle.Fill>
+        </Rectangle>
+        <Slider x:Name="SliderVolume" Value="60" Maximum="100"  HorizontalAlignment="Left" Margin="239,47,0,0" VerticalAlignment="Top" Width="66"/>
     </Grid>
 </Controls:MetroWindow>

@@ -55,11 +55,12 @@ namespace Glam.Desktop
             this.DelayedUpdateStartTimer.Elapsed += OnDelayedUpdateStart;
 
             this.TrackDisplayTimer = new TimerTask();
-            this.TrackDisplayTimer.Interval = 1000;
+            this.TrackDisplayTimer.Interval = 250;
             this.TrackDisplayTimer.Elapsed += UpdateTrackDisplay;
             this.TrackDisplayTimer.Start();
         }
 
+        // TODO: Rethink this method
         private void UpdateTrackDisplay(object sender, System.Timers.ElapsedEventArgs e)
         {
             if (this.MusicPlayer.IsPlaying)
@@ -67,12 +68,15 @@ namespace Glam.Desktop
                 this.Dispatcher.BeginInvoke((Action)(() => this.LabelCurrentTrack.Content = this.MusicPlayer.TrackName));
                 this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Value = this.MusicPlayer.TrackPosition));
                 this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Maximum = this.MusicPlayer.TrackLength));
+                this.Dispatcher.BeginInvoke((Action)(() => this.ButtonTogglePlay.Content = FindResource("appbar_control_pause")));
             }
             else
             {
                 this.Dispatcher.BeginInvoke((Action)(() => this.LabelCurrentTrack.Content = string.Empty));
                 this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Value = 0));
                 this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Maximum = 1));
+                this.Dispatcher.BeginInvoke((Action)(() => this.ButtonTogglePlay.Content = FindResource("appbar_control_play")));
+                this.TrackDisplayTimer.Stop();
             }
         }
 
@@ -106,6 +110,7 @@ namespace Glam.Desktop
                 this.MusicPlayer.Playlist = this.MusicProvider.GetMapMusic(mapName);
                 this.MusicPlayer.ShufflePlaylist();
                 this.MusicPlayer.StartPlaylist();
+                this.TrackDisplayTimer.Start();
             }
         }
         
@@ -115,6 +120,35 @@ namespace Glam.Desktop
             this.Monitor.Stop();
             this.DelayedUpdateStartTimer.Stop();
             this.TrackDisplayTimer.Stop();
+        }
+
+        private void ButtonTogglePlay_Click(object sender, RoutedEventArgs e)
+        {
+            //FocusManager.SetFocusedElement(FocusManager.GetFocusScope(this.ButtonTogglePlay), null);
+            Keyboard.ClearFocus();
+
+            if (this.MusicPlayer.IsPlaying)
+            {
+                this.MusicPlayer.Pause();
+                
+            }
+            else
+            {
+                this.MusicPlayer.Resume();
+                this.TrackDisplayTimer.Start();
+            }
+        }
+
+        private void ButtonNextTrack_Click(object sender, RoutedEventArgs e)
+        {
+            this.MusicPlayer.StartNextTrack();
+            this.TrackDisplayTimer.Start();
+        }
+
+        private void ButtonPreviousTrack_Click(object sender, RoutedEventArgs e)
+        {
+            this.MusicPlayer.StartPreviousTrack();
+            this.TrackDisplayTimer.Start();
         }
     }
 }

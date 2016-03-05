@@ -109,8 +109,6 @@ namespace Glam.Desktop
 
         public void StartPlaylist()
         {
-            this.Stop();
-
             if (this.Playlist != null && this.Playlist.Count > 0)
             {
                 this.TrackIndex = 0;
@@ -118,11 +116,39 @@ namespace Glam.Desktop
             }
         }
 
+        public void StartNextTrack()
+        {
+            this.TrackIndex++;
+            if (this.TrackIndex >= this.Playlist.Count())
+            {
+                this.TrackIndex = 0;
+            }
+            
+            if (this.Playlist != null && this.Playlist.Count > 0)
+            {
+                this.StartTrack(this.Playlist[this.TrackIndex].Path);
+            }
+        }
+
+        public void StartPreviousTrack()
+        {
+            this.TrackIndex--;
+            if (this.TrackIndex < 0)
+            {
+                this.TrackIndex = this.Playlist.Count() - 1;
+            }
+
+            if (this.Playlist != null && this.Playlist.Count > 0)
+            {
+                this.StartTrack(this.Playlist[this.TrackIndex].Path);
+            }
+        }
+
         private void StartTrack(string filePath)
         {
             try
             {
-
+                this.Stop();
                 this.AudioOut = new WaveOutEvent();
 
                 if (filePath.EndsWith(".mp3") || filePath.EndsWith(".wav"))
@@ -190,19 +216,7 @@ namespace Glam.Desktop
         // OnPlayback stop, advance to the next track
         private void OnPlaybackStopped(object sender, StoppedEventArgs e)
         {
-            this.TrackIndex++;
-            if (this.TrackIndex >= this.Playlist.Count())
-            {
-                this.TrackIndex = 0;
-            }
-            
-            this.Stop();
-
-            if (this.Playlist != null && this.Playlist.Count > 0)
-            {
-                this.StartTrack(this.Playlist[this.TrackIndex].Path);
-            }
-            
+            this.StartNextTrack();
         }
 
         // Used for fading out
@@ -256,14 +270,25 @@ namespace Glam.Desktop
 
         public void Stop()
         {
-            if (AudioOut != null && AudioOut.PlaybackState != PlaybackState.Stopped)
+            if (AudioOut != null)
             {
                 AudioOut.Stop();
             }
             
-            if (AudioFile is IDisposable && AudioFile != null)
+            if (AudioFile != null)
             {
-                ((IDisposable)AudioFile).Dispose();
+                if(AudioFile is IDisposable)
+                {
+                    try
+                    {
+                        ((IDisposable)AudioFile).Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        System.Console.WriteLine(e.InnerException);
+                    }
+                }
+
                 AudioFile = null;    
             }
 
