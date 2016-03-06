@@ -110,6 +110,7 @@ namespace Glam.Desktop
                 this.MusicPlayer.Playlist = this.MusicProvider.GetMapMusic(mapName);
                 this.MusicPlayer.ShufflePlaylist();
                 this.MusicPlayer.StartPlaylist();
+                this.Dispatcher.BeginInvoke((Action)(() => this.MusicPlayer.Volume = this.SliderVolume.Value / 100));
                 this.TrackDisplayTimer.Start();
             }
         }
@@ -122,7 +123,7 @@ namespace Glam.Desktop
             this.TrackDisplayTimer.Stop();
         }
 
-        private void ButtonTogglePlay_Click(object sender, RoutedEventArgs e)
+        private void OnTogglePlayPause(object sender, RoutedEventArgs e)
         {
             //FocusManager.SetFocusedElement(FocusManager.GetFocusScope(this.ButtonTogglePlay), null);
             Keyboard.ClearFocus();
@@ -139,16 +140,24 @@ namespace Glam.Desktop
             }
         }
 
-        private void ButtonNextTrack_Click(object sender, RoutedEventArgs e)
+        private void OnSkipToNextTrack(object sender, RoutedEventArgs e)
         {
             this.MusicPlayer.StartNextTrack();
             this.TrackDisplayTimer.Start();
         }
 
-        private void ButtonPreviousTrack_Click(object sender, RoutedEventArgs e)
+        private void OnSkipToPreviousTrack(object sender, RoutedEventArgs e)
         {
             this.MusicPlayer.StartPreviousTrack();
             this.TrackDisplayTimer.Start();
+        }
+
+        private void OnSliderVolumeChange(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if(this.MusicPlayer != null)
+            {
+                this.MusicPlayer.Volume = e.NewValue/100;
+            }
         }
     }
 }

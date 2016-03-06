@@ -27,6 +27,31 @@ namespace Glam.Desktop
         public List<Music> Playlist { get; set; }
         public int TrackIndex { get; set; }
 
+        private float StartVolume;
+
+        public double Volume {
+            get
+            {
+                if(this.AudioPlayer != null)
+                {
+                    return this.AudioPlayer.Volume;
+                }
+                else
+                {
+                    return this.StartVolume;
+                }
+            }
+            set
+            {
+                if(this.AudioPlayer != null)
+                {
+                    this.AudioPlayer.Volume = (float)value;
+                }
+
+                this.StartVolume = (float)value;
+            }
+        }
+
         public long TrackLength
         {
             get
@@ -100,6 +125,7 @@ namespace Glam.Desktop
 
         public MusicPlayer()
         {
+            this.StartVolume = 1;
             this.FadeTarget = Fade.Disabled;
             this.FadeTimer = new System.Timers.Timer();
             this.FadeTimer.Interval = 50;
@@ -175,7 +201,7 @@ namespace Glam.Desktop
                 }
 
                 this.AudioPlayer.Init(this.AudioReader);
-                this.AudioPlayer.Volume = 1.0f; // Unfortunately, VorbisFileReader does not have volume control
+                this.AudioPlayer.Volume = this.StartVolume; // Unfortunately, VorbisFileReader does not have volume control
                 this.AudioPlayer.Play();
                 this.AudioPlayer.PlaybackStopped += OnPlaybackStopped;
                 this.FadeTarget = Fade.Disabled;
