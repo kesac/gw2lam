@@ -76,7 +76,6 @@ namespace Glam.Desktop
                 this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Value = 0));
                 this.Dispatcher.BeginInvoke((Action)(() => this.ProgressBar.Maximum = 1));
                 this.Dispatcher.BeginInvoke((Action)(() => this.ButtonTogglePlay.Content = FindResource("appbar_control_play")));
-                this.TrackDisplayTimer.Stop();
             }
         }
 
@@ -107,11 +106,11 @@ namespace Glam.Desktop
             else
             {
                 this.LastMapId = currentMapId;
+                this.MusicPlayer.Stop(); // should have already faded out at this point, we release resources this way
                 this.MusicPlayer.Playlist = this.MusicProvider.GetMapMusic(mapName);
                 this.MusicPlayer.ShufflePlaylist();
                 this.MusicPlayer.StartPlaylist();
                 this.Dispatcher.BeginInvoke((Action)(() => this.MusicPlayer.Volume = this.SliderVolume.Value / 100));
-                this.TrackDisplayTimer.Start();
             }
         }
         

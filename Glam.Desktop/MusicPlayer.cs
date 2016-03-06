@@ -15,7 +15,7 @@ namespace Glam.Desktop
 {
     public class MusicPlayer
     {
-        private const float FadeOutStep = 0.03f;
+        private const float FadeOutStep = 0.01f;
         private enum Fade { Out, In, Disabled }
 
         private IWavePlayer AudioPlayer;
@@ -128,7 +128,7 @@ namespace Glam.Desktop
             this.StartVolume = 1;
             this.FadeTarget = Fade.Disabled;
             this.FadeTimer = new System.Timers.Timer();
-            this.FadeTimer.Interval = 50;
+            this.FadeTimer.Interval = 150;
             this.FadeTimer.Elapsed += UpdateFade;
         }
 
@@ -227,7 +227,6 @@ namespace Glam.Desktop
             {
                 this.FadeTimer.Stop();
                 this.FadeTarget = Fade.Out;
-                //this.AudioOut.Volume = 1;
                 this.AudioPlayer.Play();
                 this.FadeTimer.Start();
             }
@@ -239,7 +238,6 @@ namespace Glam.Desktop
             {
                 this.FadeTimer.Stop();
                 this.FadeTarget = Fade.In;
-                //this.AudioOut.Volume = 0;
                 this.AudioPlayer.Play();
                 this.FadeTimer.Start();
             }
@@ -284,9 +282,9 @@ namespace Glam.Desktop
                 }
                 else if (this.FadeTarget == Fade.In)
                 {
-                    if (this.AudioPlayer.Volume + FadeOutStep > 1)
+                    if (this.AudioPlayer.Volume + FadeOutStep > this.StartVolume)
                     {
-                        this.AudioPlayer.Volume = 1;
+                        this.AudioPlayer.Volume = this.StartVolume;
                         this.FadeTarget = Fade.Disabled;
                     }
                     else
