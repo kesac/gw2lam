@@ -38,7 +38,26 @@ namespace Glam.Desktop
             InitializeComponent();
 
             this.MapService = new MapService();
-            this.MapService.LoadMapData(); // this makes calls to GW2's web API if a cache of the map data doesn't exist yet
+
+            if (!this.MapService.CacheExists)
+            {
+                MessageBoxResult result = MessageBox.Show("Glam cannot find the file '"+this.MapService.CacheFileName+"'. This file is required to resolve map names properly. Glam can recreate this file by making calls to the official Guild Wars 2 web API.\n\n(See https://wiki.guildwars2.com/wiki/API:Main)\n\nWould you like to recreate this file?",
+                    "Glam",
+                    System.Windows.MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    this.MapService.LoadFromWebApi(); // this makes calls to GW2's web API if a cache of the map data doesn't exist yet
+                }
+                else
+                {
+                    MessageBox.Show("Glam will continue running, however you must use IDs to reference maps instead of names when customizing soundtracks.", "Glam", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            else
+            {
+                this.MapService.LoadFromCache();
+            }
 
             this.MusicProvider = new MusicProvider("music");
             this.MusicPlayer = new MusicPlayer();
