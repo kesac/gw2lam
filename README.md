@@ -1,49 +1,46 @@
-# gw2lam
+# Glam
 
-A location-aware music player for [Guild Wars 2](https://www.guildwars2.com/) (GW2) written in C#.
+### What is this?
+Glam is an alternative to [Guild Wars 2's](https://www.guildwars2.com/) [soundtrack customization](https://wiki.guildwars2.com/wiki/Customized_soundtrack) features. It supports map-specific music instead of situation-specific music. Glam stands for *Guild Wars 2 Location-Aware Music*.
 
-GW2 provides a player's character and position data in a [memory-mapped file](https://en.wikipedia.org/wiki/Memory-mapped_file) formatted for use with [Mumble's](http://wiki.mumble.info/wiki/Link) positional audio support. The [GwApiNET](https://gwapinet.codeplex.com/) library is used to access this memory-mapped file to obtain the player's current location in the GW2 world and [NAudio](https://naudio.codeplex.com/) is used to play custom music the player has provided for that specific location.
+### How does it work?
+GW2 provides a player's character and position data in a [memory-mapped file](https://en.wikipedia.org/wiki/Memory-mapped_file),  formatted for use with [Mumble's](http://wiki.mumble.info/wiki/Link) positional audio support. Glam is used to access this memory-mapped file to obtain the player's current location in the GW2 world and play custom music for that specific location.
 
-
-## Differences with GW's Soundtrack Customization
-Gw2lam provides a different experience than GW2's own [soundtrack customization features](https://wiki.guildwars2.com/wiki/Custom_music):
+### What are the differences compared with the built-in soundtrack customization?
 
 ##### Advantages
-* Players can customize the music of every map, including WvW maps, PvP maps, and story-based instanced maps
+* You can customize the music for every map, including WvW maps, PvP maps, and story-based instanced maps
 * Each map can have unique, dedicated music track(s)
-* Utilizes a simple directory structure for customizing map music instead of playlists
+* It utilizes a simple directory structure for customizing map music
 
 ##### Disadvantages
-* No support for main menu music (cannot detect when you are in the character selection screen)
-* Cannot customize night time, underwater, battle, and downed music (this information is not provided in GW2's memory-mapped file
+* No support for main menu music (GW2 does not provide position data when you're not in a map)
+* Cannot customize music for night-time, battle, underwater, etc. situations. (GW2's memory-mapped file does not provide this information)
 
+### Usage - Glam Desktop Player
+~~[Download the desktop player here.](#)~~ *(Still in development!)*
 
-## Usage
-~~[Download the gw2lam distributable here.](#)~~ *(Still in development!)*
+There is no installer, simply extract the contents of the zip file into a new folder in any location. Run Glam.Desktop.exe alongside Guild Wars 2 (it does not matter which one is started first). 
 
-There is no installation executable, simply extract the contents of the zip file into a new folder in any location. Run gw2lam.exe alongside Guild Wars 2 (it does not matter which one is started first). 
+Inside the application folder is a directory called *music*. When customizing the music of a map, create a subdirectory in *music* with the same name as your desired map. Place your music **files** or **playlists** inside that subdirectory. 
 
-Inside the main folder is a directory called **music**. When customizing the music of a map, create a subdirectory in **music** with the same name as your desired map. Place your music files inside that subdirectory. 
+For example, if you want to customize the music of [Divinity's Reach](https://wiki.guildwars2.com/wiki/Divinity%27s_reach), you would place your custom music in *music/Divinity's Reach*. 
 
-For example, if you want to customize the music of [Divinity's Reach](https://wiki.guildwars2.com/wiki/Divinity%27s_reach), the human capital of [Tyria](https://wiki.guildwars2.com/wiki/Tyria), you would place your custom music in **music/Divinity's Reach**. For convenience, the gw2lam distributable has most of the subdirectories for major maps already created.
+Music can be customized while both GW2 and Glam is already running. You will need to exit and re-enter a map to hear the changes however.
 
-Music can be customized while both GW2 and gw2lam are already running. However, you will need to exit and re-enter a map to hear the changes. At the moment, only the .mp3, .ogg, and .wav formats are supported.
+### Supported Audio Formats
+ * mp3
+ * wav
+ * ogg
 
-
-## Compiling
-
-gw2lam was built using .NET 4.5. It is depdendent on these two libraries:
-* [GwApiNET](https://gwapinet.codeplex.com/)
-* [NAudio](https://naudio.codeplex.com/)
-* [NVorbis](https://nvorbis.codeplex.com/)
-
-You will need these two libraries referenced in your project in order to compile this project.
+### Supported Playlist Formats
+ * m3u
 
 ## License
 ```
 The MIT License (MIT)
 
-Copyright (c) 2014 Kevin Sacro
+Copyright (c) 2014-2016 Kevin Sacro
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
