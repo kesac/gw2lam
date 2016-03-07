@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.IO;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -15,7 +16,7 @@ using System.Windows.Shapes;
 using TimerTask = System.Timers.Timer;
 using MahApps.Metro.Controls;
 using Glam;
-
+using System.Diagnostics;
 
 namespace Glam.Desktop
 {
@@ -82,6 +83,7 @@ namespace Glam.Desktop
         private void OnUpdateStopped(object sender, MapChangeEventArgs e)
         {
             this.Dispatcher.BeginInvoke((Action)(() => this.Title = "Unknown Location"));
+            this.Dispatcher.BeginInvoke((Action)(() => this.TabControl.SelectedItem = this.TabStartup));
             this.MusicPlayer.FadeOut();
         }
 
@@ -112,6 +114,17 @@ namespace Glam.Desktop
                 this.MusicPlayer.StartPlaylist();
                 this.Dispatcher.BeginInvoke((Action)(() => this.MusicPlayer.Volume = this.SliderVolume.Value / 100));
             }
+
+
+            if (this.MusicPlayer.Playlist.Count() == 0)
+            {
+                this.Dispatcher.BeginInvoke((Action)(() => this.TabControl.SelectedItem = this.TabNoTracks));
+            }
+            else
+            {
+                this.Dispatcher.BeginInvoke((Action)(() => this.TabControl.SelectedItem = this.TabPlayer));
+            }
+
         }
         
         private void OnWindowClosed(object sender, EventArgs e)
@@ -157,6 +170,35 @@ namespace Glam.Desktop
             {
                 this.MusicPlayer.Volume = e.NewValue/100;
             }
+        }
+
+        private void OnGoToMusicFolder(object sender, RoutedEventArgs e)
+        {
+            string musicFolderPath = System.IO.Path.GetFullPath(this.MusicProvider.RootMusicFolder);
+            Process.Start(musicFolderPath);
+        }
+
+        private void OnGoToMapMusicFolder(object sender, RoutedEventArgs e)
+        {
+
+            string mapName = this.MapService.ResolveName(this.Monitor.GetCurrentMap());
+            string musicRootFolderPath = System.IO.Path.GetFullPath(this.MusicProvider.RootMusicFolder);
+            string musicFolderPath = musicRootFolderPath + "\\" + mapName;
+
+            try
+            {
+                if (!Directory.Exists(musicFolderPath))
+                {
+                    Directory.CreateDirectory(musicFolderPath);
+                }
+
+                Process.Start(musicFolderPath);
+            }
+            catch (Exception e2)
+            {
+                Process.Start(musicRootFolderPath);
+            }
+            
         }
     }
 }

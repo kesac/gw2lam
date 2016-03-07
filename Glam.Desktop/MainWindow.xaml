@@ -18,21 +18,49 @@
         </ResourceDictionary>
     </Window.Resources>
 
+
     <Grid>
-        <Grid HorizontalAlignment="Left" Height="34" Margin="10,43,0,-7" VerticalAlignment="Top" Width="295">
-            <Button Focusable="False" Content="{StaticResource appbar_control_rewind_variant}" x:Name="ButtonPreviousTrack" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Height="25"  Width="25" Click="OnSkipToPreviousTrack" />
-            <Button Focusable="False" Content="{StaticResource appbar_control_pause}" x:Name="ButtonTogglePlay" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Margin="30,0,0,0" Height="25" Width="25" Click="OnTogglePlayPause" />
 
-            <Button Focusable="False" Content="{StaticResource appbar_control_fastforward_variant}" x:Name="ButtonNextTrack" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Margin="60,0,0,0" Height="25"  Width="25" Click="OnSkipToNextTrack" />
-        </Grid>
-        <ProgressBar x:Name="ProgressBar" HorizontalAlignment="Left" Margin="10,23,0,0" VerticalAlignment="Top" Width="295" Height="15"/>
-        <Label x:Name="LabelCurrentTrack" Content="Track Name" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Width="295"/>
+        <TabControl x:Name="TabControl" HorizontalAlignment="Left" Height="75" VerticalAlignment="Top" Width="317" Visibility="Visible">
+            <TabItem Name="TabStartup" Visibility="Visible">
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Height="64" Margin="0,0,0,-4">
+                    <TextBlock x:Name="LabelStartup" VerticalAlignment="Top" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="WrapWithOverflow" Margin="0,3,3,0" Width="304" Height="54">
+                        Your custom soundtrack will automatically play once you've <Bold>launched Guild Wars 2 and entered a map</Bold>.
+                        <Hyperlink Click="OnGoToMusicFolder">
+                            <TextBlock>Click here to go to your custom music folder!</TextBlock>
+                        </Hyperlink>
+                    </TextBlock>
 
-        <Rectangle Margin="208,45,91,8" Width="15" Height="18">
-            <Rectangle.Fill>
-                <VisualBrush Visual="{StaticResource appbar_sound_2}" Stretch="Uniform" />
-            </Rectangle.Fill>
-        </Rectangle>
-        <Slider x:Name="SliderVolume" Value="20" Maximum="100"  HorizontalAlignment="Left" Margin="239,47,0,0" VerticalAlignment="Top" Width="66" ValueChanged="OnSliderVolumeChange"/>
+                </Grid>
+            </TabItem>
+            <TabItem Name="TabNoTracks" Visibility="Visible">
+                <TextBlock x:Name="LabelNoTracks" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="WrapWithOverflow" Margin="38,0,21,0" VerticalAlignment="Center" Width="248" Height="56">
+                    <Bold>There are no tracks for this map.</Bold> Please add some tracks or playlists for the current map.
+                    <Hyperlink Click="OnGoToMapMusicFolder">
+                            <TextBlock>Click here to go to this map's music folder!</TextBlock>
+                        </Hyperlink>
+                </TextBlock>
+            </TabItem>
+            <TabItem Name="TabPlayer" Visibility="Visible">
+                <Grid Margin="-5,-10,0,0">
+                    <Grid HorizontalAlignment="Left" Height="34" Margin="10,43,0,-7" VerticalAlignment="Top" Width="295">
+                        <Button Focusable="False" Content="{StaticResource appbar_control_rewind_variant}" x:Name="ButtonPreviousTrack" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Height="25"  Width="25" Click="OnSkipToPreviousTrack" />
+                        <Button Focusable="False" Content="{StaticResource appbar_control_pause}" x:Name="ButtonTogglePlay" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Margin="30,0,0,0" Height="25" Width="25" Click="OnTogglePlayPause" />
+
+                        <Button Focusable="False" Content="{StaticResource appbar_control_fastforward_variant}" x:Name="ButtonNextTrack" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Margin="60,0,0,0" Height="25"  Width="25" Click="OnSkipToNextTrack" />
+                    </Grid>
+                    <ProgressBar x:Name="ProgressBar" HorizontalAlignment="Left" Margin="10,23,0,0" VerticalAlignment="Top" Width="295" Height="15"/>
+                    <Label x:Name="LabelCurrentTrack" Content="Track Name" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Width="295"/>
+
+                    <Rectangle Margin="207,47,79,5" Height="18">
+                        <Rectangle.Fill>
+                            <VisualBrush Visual="{StaticResource appbar_sound_2}" Stretch="Uniform" />
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <Slider x:Name="SliderVolume" Value="20" Maximum="100"  HorizontalAlignment="Left" Margin="239,47,0,0" VerticalAlignment="Top" Width="66" ValueChanged="OnSliderVolumeChange"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
     </Grid>
 </Controls:MetroWindow>

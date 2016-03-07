@@ -10,7 +10,7 @@ namespace Glam.Desktop
 {
     public class MusicProvider : IMusicProvider
     {
-        private string RootMusicFolder;
+        public string RootMusicFolder { get; private set; }
         private readonly string[] SupportedFormats = new string[] { "mp3", "wav", "ogg", "m3u" };
 
         public MusicProvider(string musicFolderPath)

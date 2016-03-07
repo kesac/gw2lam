@@ -153,7 +153,7 @@ namespace Glam.Desktop
         public void StartNextTrack()
         {
             this.TrackIndex++;
-            if (this.TrackIndex >= this.Playlist.Count())
+            if (this.Playlist != null && this.TrackIndex >= this.Playlist.Count())
             {
                 this.TrackIndex = 0;
             }
@@ -178,38 +178,44 @@ namespace Glam.Desktop
             }
         }
 
+        private object StartTrackLock = new object();
+
         private void StartTrack(string filePath)
         {
-            try
+            lock (StartTrackLock)
             {
                 this.Stop();
-                this.AudioPlayer = new WaveOutEvent();
 
-                filePath = filePath.ToLower();
+                try
+                {
 
-                if (filePath.EndsWith(".mp3"))
-                {
-                    this.AudioReader = new Mp3FileReader(filePath);
-                }
-                else if (filePath.ToLower().EndsWith("wav"))
-                {
-                    this.AudioReader = new AudioFileReader(filePath);
-                }
-                else if (filePath.EndsWith(".ogg"))
-                {
-                    this.AudioReader = new VorbisWaveReader(filePath);
-                }
+                    this.AudioPlayer = new WaveOutEvent();
 
-                this.AudioPlayer.Init(this.AudioReader);
-                this.AudioPlayer.Volume = this.StartVolume; // Unfortunately, VorbisFileReader does not have volume control
-                this.AudioPlayer.Play();
-                this.AudioPlayer.PlaybackStopped += OnPlaybackStopped;
-                this.FadeTarget = Fade.Disabled;
-            }
-            catch(Exception e)
-            {
-                this.Stop();
-                System.Console.WriteLine(e.StackTrace);
+                    filePath = filePath.ToLower();
+
+                    if (filePath.EndsWith(".mp3"))
+                    {
+                        this.AudioReader = new Mp3FileReader(filePath);
+                    }
+                    else if (filePath.ToLower().EndsWith("wav"))
+                    {
+                        this.AudioReader = new AudioFileReader(filePath);
+                    }
+                    else if (filePath.EndsWith(".ogg"))
+                    {
+                        this.AudioReader = new VorbisWaveReader(filePath);
+                    }
+
+                    this.AudioPlayer.Init(this.AudioReader);
+                    this.AudioPlayer.Volume = this.StartVolume; // Unfortunately, VorbisFileReader does not have volume control
+                    this.AudioPlayer.Play();
+                    this.AudioPlayer.PlaybackStopped += OnPlaybackStopped;
+                    this.FadeTarget = Fade.Disabled;
+                }
+                catch (Exception e)
+                {
+                    System.Console.WriteLine(e.StackTrace);
+                }
             }
         }
 
@@ -254,10 +260,12 @@ namespace Glam.Desktop
         // OnPlayback stop, advance to the next track
         private void OnPlaybackStopped(object sender, StoppedEventArgs e)
         {
+            
             if(this.TrackPosition >= this.TrackLength)
             {
                 this.StartNextTrack();
             }
+            
         }
 
         // Used for fading out
