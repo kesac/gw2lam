@@ -22,7 +22,7 @@
     <Grid>
 
         <TabControl x:Name="TabControl" HorizontalAlignment="Left" Height="75" VerticalAlignment="Top" Width="317" Visibility="Visible">
-            <TabItem Name="TabStartup" Visibility="Visible">
+            <TabItem Name="TabStartup" Visibility="Hidden">
                 <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Height="64" Margin="0,0,0,-4">
                     <TextBlock x:Name="LabelStartup" VerticalAlignment="Top" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="WrapWithOverflow" Margin="0,3,3,0" Width="304" Height="54">
                         Your custom soundtrack will automatically play once you've <Bold>launched Guild Wars 2 and entered a map</Bold>.
@@ -33,7 +33,7 @@
 
                 </Grid>
             </TabItem>
-            <TabItem Name="TabNoTracks" Visibility="Visible">
+            <TabItem Name="TabNoTracks" Visibility="Hidden">
                 <TextBlock x:Name="LabelNoTracks" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="WrapWithOverflow" Margin="38,0,21,0" VerticalAlignment="Center" Width="248" Height="56">
                     <Bold>There are no tracks for this map.</Bold> Please add some tracks or playlists for the current map.
                     <Hyperlink Click="OnGoToMapMusicFolder">
@@ -41,7 +41,7 @@
                         </Hyperlink>
                 </TextBlock>
             </TabItem>
-            <TabItem Name="TabPlayer" Visibility="Visible">
+            <TabItem Name="TabPlayer" Visibility="Hidden">
                 <Grid Margin="-5,-10,0,0">
                     <Grid HorizontalAlignment="Left" Height="34" Margin="10,43,0,-7" VerticalAlignment="Top" Width="295">
                         <Button Focusable="False" Content="{StaticResource appbar_control_rewind_variant}" x:Name="ButtonPreviousTrack" FontSize="8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.013,0.213" Height="25"  Width="25" Click="OnSkipToPreviousTrack" />

@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Glam;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Glam.Desktop
 {
@@ -13,13 +15,53 @@ namespace Glam.Desktop
         public string RootMusicFolder { get; private set; }
         private readonly string[] SupportedFormats = new string[] { "mp3", "wav", "ogg", "m3u" };
 
+        private Dictionary<string, string> SpecialFolders;
+        private string FallbackFolder;
+
         public MusicProvider(string musicFolderPath)
         {
+            this.SpecialFolders = new Dictionary<string, string>();
             this.RootMusicFolder = musicFolderPath;
 
             if (!Directory.Exists(musicFolderPath))
             {
                 Directory.CreateDirectory(musicFolderPath);   
+            }
+
+            try {
+                if (File.Exists(this.RootMusicFolder + "\\music.xml"))
+                {
+
+                    XDocument x = XDocument.Load(this.RootMusicFolder + "\\music.xml");
+
+                    foreach (XElement section in x.Descendants())
+                    {
+                        if (section.Name == "region")
+                        {
+                            string folder = section.Attribute("folder").Value;
+
+                            foreach (XElement map in section.Descendants())
+                            {
+                                string mapName = map.Attribute("name").Value;
+
+                                if (!this.SpecialFolders.Keys.Contains(mapName))
+                                {
+                                    this.SpecialFolders.Add(mapName, folder);
+                                }
+
+                            }
+                        }
+                        else if (section.Name == "fallback")
+                        {
+                            this.FallbackFolder = section.Attribute("folder").Value;
+                        }
+                    }
+
+                }
+            }
+            catch(Exception e)
+            {
+                System.Console.WriteLine(e.StackTrace);
             }
         }
 
@@ -37,6 +79,7 @@ namespace Glam.Desktop
 
         private List<Music> GetMusic(string mapName)
         {
+
             List<Music> result = new List<Music>();
 
             string path = this.RootMusicFolder + "\\" + mapName;
@@ -46,10 +89,30 @@ namespace Glam.Desktop
                 Playlist playlist = new Playlist(path + ".m3u");
                 result.AddRange(playlist.GetMusic());
             }
-            
-            if (Directory.Exists(path)) // Else check if a folder of files exists for the map
+
+            if (Directory.Exists(path))
             {
-                string[] files = Directory.GetFiles(Path.GetFullPath(path));
+                result.AddRange(this.GetMusicFromFolder(path));
+            }
+
+            if (this.SpecialFolders.Keys.Contains(mapName))
+            {
+                result.AddRange(this.GetMusicFromFolder(this.RootMusicFolder + "\\" + this.SpecialFolders[mapName]));
+            }
+            else if (result.Count == 0 && !string.IsNullOrEmpty(this.FallbackFolder))
+            {
+                result.AddRange(this.GetMusicFromFolder(this.RootMusicFolder + "\\" + this.FallbackFolder));
+            }
+
+            return result;
+        }
+
+        private List<Music> GetMusicFromFolder(string folder)
+        {
+            List<Music> result = new List<Music>();
+            if (Directory.Exists(folder)) // Else check if a folder of files exists for the map
+            {
+                string[] files = Directory.GetFiles(Path.GetFullPath(folder));
                 foreach (string f in files)
                 {
                     foreach (string format in SupportedFormats)
@@ -71,7 +134,6 @@ namespace Glam.Desktop
                     }
                 }
             }
-
             return result;
         }
 
