@@ -24,7 +24,7 @@ namespace Glam.Desktop
 
         private TimerTask FadeTimer;
 
-        public List<Music> Playlist { get; set; }
+        private List<Music> Playlist;
         public int TrackIndex { get; set; }
 
         private float StartVolume;
@@ -132,6 +132,12 @@ namespace Glam.Desktop
             this.FadeTimer.Elapsed += UpdateFade;
         }
 
+        public void SetPlaylist(List<Music> playlist)
+        {
+            this.Playlist = playlist;
+            this.TrackIndex = 0;
+        }
+
         public void ShufflePlaylist()
         {
             if (this.Playlist != null)
@@ -147,6 +153,19 @@ namespace Glam.Desktop
             {
                 this.TrackIndex = 0;
                 this.StartTrack(this.Playlist[this.TrackIndex].Path);    
+            }
+        }
+
+        public int GetPlaylistCount()
+        {
+            if(this.Playlist != null)
+            {
+                return this.Playlist.Count();
+            }
+
+            else
+            {
+                return 0;
             }
         }
 
@@ -233,7 +252,6 @@ namespace Glam.Desktop
             {
                 this.FadeTimer.Stop();
                 this.FadeTarget = Fade.Out;
-                this.AudioPlayer.Play();
                 this.FadeTimer.Start();
             }
         }
@@ -308,18 +326,11 @@ namespace Glam.Desktop
             }
         }
 
-        // Only works if Update() is being called in the main loop
-        public void FadeStop()
-        {
-            if (this.IsPlaying)
-            {
-                this.FadeTarget = Fade.Out;
-            }
-        }
-        
         public void Stop()
         {
-            
+            this.FadeTarget = Fade.Disabled;
+            this.FadeTimer.Stop();
+
             if (AudioPlayer != null)
             {
                 AudioPlayer.Stop();
@@ -347,8 +358,6 @@ namespace Glam.Desktop
                 AudioPlayer.Dispose();
                 AudioPlayer = null;
             }
-
-            this.FadeTarget = Fade.Disabled;
             
         }
     }

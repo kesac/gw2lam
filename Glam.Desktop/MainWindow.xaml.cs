@@ -118,7 +118,7 @@ namespace Glam.Desktop
             uint currentMapId = this.Monitor.GetCurrentMap();
 
             string mapName = this.MapService.ResolveName(currentMapId);
-            this.Dispatcher.BeginInvoke((Action)(() => this.Title = mapName));
+             this.Dispatcher.BeginInvoke((Action)(() => this.Title = mapName));
 
             if (currentMapId == this.LastMapId)
             {
@@ -126,16 +126,16 @@ namespace Glam.Desktop
             }
             else
             {
+                this.MusicPlayer.SetPlaylist(null);
                 this.LastMapId = currentMapId;
                 this.MusicPlayer.Stop(); // should have already faded out at this point, we release resources this way
-                this.MusicPlayer.Playlist = this.MusicProvider.GetMapMusic(mapName);
+                this.MusicPlayer.SetPlaylist(this.MusicProvider.GetMapMusic(mapName));
                 this.MusicPlayer.ShufflePlaylist();
                 this.MusicPlayer.StartPlaylist();
                 this.Dispatcher.BeginInvoke((Action)(() => this.MusicPlayer.Volume = this.SliderVolume.Value / 100));
             }
 
-
-            if (this.MusicPlayer.Playlist.Count() == 0)
+            if (this.MusicPlayer.GetPlaylistCount() == 0)
             {
                 this.Dispatcher.BeginInvoke((Action)(() => this.TabControl.SelectedItem = this.TabNoTracks));
             }
