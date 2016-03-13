@@ -6,19 +6,17 @@ Glam is an alternative to [Guild Wars 2's](https://www.guildwars2.com/) built-in
 ### How does it work?
 GW2 writes a player's character and position data to a [memory-mapped file](https://wiki.guildwars2.com/wiki/API:MumbleLink). Glam uses the information within the memory-mapped file to find out a GW2 player's current location in the game world and plays custom music for that location.
 
-### What are the differences compared with the built-in soundtrack customization?
-
-##### Advantages
+#### Advantages over built-in customization
 * You can customize the music for every map, including WvW maps, PvP maps, and story-based instanced maps
 * Each map can have unique, dedicated music tracks
 * Customizing is easier: Glam uses a simple directory structure for customizing map music instead of depending on playlists
 
-##### Disadvantages
+#### Disadvantages compared to built-in customization
 * Cannot customize situation based music. For example, Glam has no way of telling when it is night-time or when you are in a battle. GW2's memory-mapped file does not provide this information
 * There is no support for main menu music. GW2 does not provide position data when you're not in a map
 
 ### Usage
-[See the wiki.](https://github.com/kesac/gw2lam/wiki)
+[Please see the wiki for detailed usage instructions.](https://github.com/kesac/gw2lam/wiki)
 
 ## License
 ```
