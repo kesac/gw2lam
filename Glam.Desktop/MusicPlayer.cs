@@ -10,7 +10,6 @@ using NAudio;
 using NAudio.Wave;
 using NAudio.Vorbis;
 
-// Warning: older code - this needs to be rewritten to not use obsolete code
 namespace Glam.Desktop
 {
     public class MusicPlayer

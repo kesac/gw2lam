@@ -125,8 +125,15 @@ namespace Glam.Desktop
                                 result.AddRange(playlist.GetMusic());
                             }
                             else {
+                                Music m = new Music(f);
 
-                                result.Add(new Music(f));
+                                // Remove file extension from name
+                                if(m.Name.EndsWith("." + format))
+                                {
+                                    m.Name = m.Name.Substring(0, m.Name.Length - ("." + format).Length);
+                                }
+
+                                result.Add(m);
                             }
 
                             break;

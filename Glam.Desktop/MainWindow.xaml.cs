@@ -25,6 +25,7 @@ namespace Glam.Desktop
     {
 
         private MapService MapService;
+        private VisualsProvider VisualsProvider;
         private MusicProvider MusicProvider;
         private MusicPlayer MusicPlayer;
         private PlayerMonitor Monitor;
@@ -61,6 +62,8 @@ namespace Glam.Desktop
 
             this.MusicProvider = new MusicProvider("music");
             this.MusicPlayer = new MusicPlayer();
+
+            this.VisualsProvider = new VisualsProvider("visuals");
 
             this.Monitor = new PlayerMonitor();
             this.Monitor.UpdateStarted += OnUpdateStarted;
@@ -118,7 +121,7 @@ namespace Glam.Desktop
             uint currentMapId = this.Monitor.GetCurrentMap();
 
             string mapName = this.MapService.ResolveName(currentMapId);
-             this.Dispatcher.BeginInvoke((Action)(() => this.Title = mapName));
+            this.Dispatcher.BeginInvoke((Action)(() => this.Title = mapName));
 
             if (currentMapId == this.LastMapId)
             {
@@ -142,6 +145,11 @@ namespace Glam.Desktop
             else
             {
                 this.Dispatcher.BeginInvoke((Action)(() => this.TabControl.SelectedItem = this.TabPlayer));
+
+                if (this.VisualsProvider.HasVisuals())
+                {
+                    this.Dispatcher.BeginInvoke((Action)(() => this.ImageVisual.Source = new BitmapImage(new Uri(this.VisualsProvider.GetRandomImageFile()))));
+                }
             }
 
         }
