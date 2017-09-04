@@ -201,7 +201,7 @@ namespace Glam.Desktop
 
         private void OnGoToMusicFolder(object sender, RoutedEventArgs e)
         {
-            string musicFolderPath = System.IO.Path.GetFullPath(this.MusicProvider.RootMusicFolder);
+            string musicFolderPath = System.IO.Path.GetFullPath(this.MusicProvider.MusicFolder);
             Process.Start(musicFolderPath);
         }
 
@@ -209,7 +209,7 @@ namespace Glam.Desktop
         {
 
             string mapName = this.MapService.ResolveName(this.Monitor.GetCurrentMap());
-            string musicRootFolderPath = System.IO.Path.GetFullPath(this.MusicProvider.RootMusicFolder);
+            string musicRootFolderPath = System.IO.Path.GetFullPath(this.MusicProvider.MusicFolder);
             string musicFolderPath = musicRootFolderPath + "\\" + mapName;
 
             try

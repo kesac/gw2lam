@@ -4,58 +4,87 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Glam;
 using System.Xml;
 using System.Xml.Linq;
+using Glam;
+using Glam.Desktop.Utility;
+
 
 namespace Glam.Desktop
 {
     public class MusicProvider : IMusicProvider
     {
-        public string RootMusicFolder { get; private set; }
+        private readonly string MusicXmlFile = "music.xml";
         private readonly string[] SupportedFormats = new string[] { "mp3", "wav", "ogg", "m3u" };
 
-        private Dictionary<string, string> SpecialFolders;
-        private string FallbackFolder;
+        // These are XML node names and the attributes used for each node
+        private readonly string LocalMusicNode = "folder";
+        private readonly string LocalMusicNodeName = "name";
+        private readonly string LocalMusicNodeType = "type";
+        private readonly string MapNode = "map";
+        private readonly string MapNodeName = "name";
+        private readonly string TrackNode = "track";
+        private readonly string TrackNodeType = "type";
+        private readonly string TrackNodeFile = "file";
+        private readonly string EmbedNode = "embed";
+        private readonly string EmbedNodeLink = "link";
+        private readonly string EmbedNodeId = "id";
+        
+        private Dictionary<string, string> LocalMusicFolders;
+        private string LocalMusicFallbackFolder;
 
-        public MusicProvider(string musicFolderPath)
+        public string MusicFolder { get; private set; }
+
+        public MusicProvider(string musicFolder)
         {
-            this.SpecialFolders = new Dictionary<string, string>();
-            this.RootMusicFolder = musicFolderPath;
+            this.LocalMusicFolders = new Dictionary<string, string>();
+            this.MusicFolder = musicFolder;
 
-            if (!Directory.Exists(musicFolderPath))
+            if (!Directory.Exists(musicFolder))
             {
-                Directory.CreateDirectory(musicFolderPath);   
+                Directory.CreateDirectory(musicFolder);   
             }
 
             try {
-                if (File.Exists(this.RootMusicFolder + "\\music.xml"))
+
+                string filename = this.MusicFolder + Path.DirectorySeparatorChar + MusicXmlFile;
+
+                if (File.Exists(filename))
                 {
+                    XDocument x = XDocument.Load(filename);
 
-                    XDocument x = XDocument.Load(this.RootMusicFolder + "\\music.xml");
-
-                    foreach (XElement section in x.Descendants())
+                    foreach (XElement node in x.Descendants())
                     {
-                        if (section.Name == "region")
+                        // First check for local music folders (the tracks defined are on disk)
+                        if (node.Is(LocalMusicNode))
                         {
-                            string folder = section.Attribute("folder").Value;
-
-                            foreach (XElement map in section.Descendants())
+                            // Is it a fallback folder for maps without explicitly defined tracks?
+                            if(node.Get(LocalMusicNodeType).ToLower() == "fallback")
                             {
-                                string mapName = map.Attribute("name").Value;
-
-                                if (!this.SpecialFolders.Keys.Contains(mapName))
-                                {
-                                    this.SpecialFolders.Add(mapName, folder);
-                                }
-
+                                this.LocalMusicFallbackFolder = node.Get(LocalMusicNodeName);
                             }
-                        }
-                        else if (section.Name == "fallback")
-                        {
-                            this.FallbackFolder = section.Attribute("folder").Value;
-                        }
-                    }
+                            else
+                            {
+                                string folderName = node.Get(LocalMusicNodeName);
+
+                                foreach (XElement childNode in node.Descendants())
+                                {
+                                    if (childNode.Is(MapNode))
+                                    {
+                                        string mapName = childNode.Get(MapNodeName);
+
+                                        if (!this.LocalMusicFolders.Keys.Contains(mapName))
+                                        {
+                                            this.LocalMusicFolders.Add(mapName, folderName);
+                                        }
+                                    }
+
+                                }
+                            }
+
+                            
+                        } // if local music
+                    } // foreach node
 
                 }
             }
@@ -82,7 +111,7 @@ namespace Glam.Desktop
 
             List<Music> result = new List<Music>();
 
-            string path = this.RootMusicFolder + "\\" + mapName;
+            string path = this.MusicFolder + "\\" + mapName;
 
             if (File.Exists(path + ".m3u")) // Check if a playlist exists for the map
             {
@@ -95,13 +124,13 @@ namespace Glam.Desktop
                 result.AddRange(this.GetMusicFromFolder(path));
             }
 
-            if (this.SpecialFolders.Keys.Contains(mapName))
+            if (this.LocalMusicFolders.Keys.Contains(mapName))
             {
-                result.AddRange(this.GetMusicFromFolder(this.RootMusicFolder + "\\" + this.SpecialFolders[mapName]));
+                result.AddRange(this.GetMusicFromFolder(this.MusicFolder + "\\" + this.LocalMusicFolders[mapName]));
             }
-            else if (result.Count == 0 && !string.IsNullOrEmpty(this.FallbackFolder))
+            else if (result.Count == 0 && !string.IsNullOrEmpty(this.LocalMusicFallbackFolder))
             {
-                result.AddRange(this.GetMusicFromFolder(this.RootMusicFolder + "\\" + this.FallbackFolder));
+                result.AddRange(this.GetMusicFromFolder(this.MusicFolder + "\\" + this.LocalMusicFallbackFolder));
             }
 
             return result;
@@ -143,6 +172,7 @@ namespace Glam.Desktop
             }
             return result;
         }
+
 
     }
 }
