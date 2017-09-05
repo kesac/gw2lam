@@ -21,13 +21,13 @@ namespace Glam.Desktop
         private readonly string LocalMusicNode = "folder";
         private readonly string LocalMusicNodeName = "name";
         private readonly string LocalMusicNodeType = "type";
+        private readonly string MapGroupNode = "region";
+        private readonly string MapGroupName = "name";
         private readonly string MapNode = "map";
         private readonly string MapNodeName = "name";
         private readonly string TrackNode = "track";
-        private readonly string TrackNodeType = "type";
         private readonly string TrackNodeFile = "file";
         private readonly string EmbedNode = "embed";
-        private readonly string EmbedNodeLink = "link";
         private readonly string EmbedNodeId = "id";
         
         private Dictionary<string, string> LocalMusicFolders;
@@ -37,29 +37,34 @@ namespace Glam.Desktop
 
         public MusicProvider(string musicFolder)
         {
-            this.LocalMusicFolders = new Dictionary<string, string>();
             this.MusicFolder = musicFolder;
+            this.Reinitialize();
+        }
 
-            if (!Directory.Exists(musicFolder))
+        public bool Reinitialize()
+        {
+            try
             {
-                Directory.CreateDirectory(musicFolder);   
-            }
+                this.LocalMusicFolders = new Dictionary<string, string>();
 
-            try {
+                if (!Directory.Exists(this.MusicFolder))
+                {
+                    Directory.CreateDirectory(this.MusicFolder);
+                }
 
                 string filename = this.MusicFolder + Path.DirectorySeparatorChar + MusicXmlFile;
 
                 if (File.Exists(filename))
                 {
-                    XDocument x = XDocument.Load(filename);
+                    var xml = XDocument.Load(filename);
 
-                    foreach (XElement node in x.Descendants())
+                    foreach (var node in xml.Descendants())
                     {
                         // First check for local music folders (the tracks defined are on disk)
                         if (node.Is(LocalMusicNode))
                         {
                             // Is it a fallback folder for maps without explicitly defined tracks?
-                            if(node.Get(LocalMusicNodeType).ToLower() == "fallback")
+                            if (node.Get(LocalMusicNodeType).ToLower() == "fallback")
                             {
                                 this.LocalMusicFallbackFolder = node.Get(LocalMusicNodeName);
                             }
@@ -67,7 +72,8 @@ namespace Glam.Desktop
                             {
                                 string folderName = node.Get(LocalMusicNodeName);
 
-                                foreach (XElement childNode in node.Descendants())
+                                // Each child node is expected to be a declaration of a GW2 map
+                                foreach (var childNode in node.Descendants())
                                 {
                                     if (childNode.Is(MapNode))
                                     {
@@ -81,16 +87,45 @@ namespace Glam.Desktop
 
                                 }
                             }
+                        }
+                        else if (node.Is(MapGroupNode))
+                        {
+                            string groupName = node.Get(MapGroupName);
+                            foreach (var childNode in node.Descendants())
+                            {
+                                if (childNode.Is(MapNode))
+                                {
+                                    string mapName = childNode.Get(MapNodeName);
 
-                            
-                        } // if local music
+                                    // Each child node is expected to be a <track> or <embed>
+                                    foreach (var musicNode in childNode.Descendants())
+                                    {
+                                        if (musicNode.Is(TrackNode))
+                                        {
+                                            string fileLocation = musicNode.Get(TrackNodeFile);
+                                            // TODO: Add this to map's music queue
+                                        }
+                                        else if (musicNode.Is(EmbedNode))
+                                        {
+                                            string id = musicNode.Get(EmbedNodeId);
+                                            // TODO: Add this to map's music queue
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+
                     } // foreach node
 
                 }
+
+                return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 System.Console.WriteLine(e.StackTrace);
+                return false;
             }
         }
 
