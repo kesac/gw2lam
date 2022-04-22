@@ -16,7 +16,7 @@ namespace Glam.Desktop.Utility
 
         public static string Get(this XElement e, string attribute)
         {
-            return e.Attribute(attribute).Value;
+            return e.Attribute(attribute)?.Value;
         }
     }
 }

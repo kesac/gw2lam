@@ -63,8 +63,11 @@ namespace Glam.Desktop
                         // First check for local music folders (the tracks defined are on disk)
                         if (node.Is(LocalMusicNode))
                         {
+                            
+                            var type = node.Get(LocalMusicNodeType);
+
                             // Is it a fallback folder for maps without explicitly defined tracks?
-                            if (node.Get(LocalMusicNodeType).ToLower() == "fallback")
+                            if (type != null && type.ToLower() == "fallback")
                             {
                                 this.LocalMusicFallbackFolder = node.Get(LocalMusicNodeName);
                             }
